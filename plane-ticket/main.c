@@ -182,24 +182,30 @@ void MainListViewLoadPlane(LPPLANE lpPlane)
 {
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
-//  Setting properties Of members:
-
 	LvItem.mask = LVIF_TEXT;   // Text Style
-	LvItem.cchTextMax = 256; // Max size of test
+	LvItem.cchTextMax = 256; // Max size of txst
 	LvItem.iItem = 0;          // choose item  
 	LvItem.iSubItem = 0;       // Put in first coluom
-	LvItem.pszText = L"Item 0"; // Text to display (can be from a char variable) (Items)
+	LvItem.pszText = lpPlane->pszFlightId; // Text to display (can be from a char variable) (Items)
 
 	SendMessage(hWndMainListView, LVM_INSERTITEM, 0, (LPARAM)&LvItem); // Send info to the Listview
 
+	LvItem.iSubItem = 1;
+	LvItem.pszText = lpPlane->pszCompany;
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
+
+	LvItem.iSubItem = 2;
+	LvItem.pszText = lpPlane->pszFrom;
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
+
+	LvItem.iSubItem = 3;
+	LvItem.pszText = lpPlane->pszTo;
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 
-	for (int i = 1; i <= 5; i++) // Add SubItems in a loop
-	{
-		LvItem.iSubItem = i;
-		LvItem.pszText = L"Item";
-		SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem); // Enter text to SubItems
-	}
+	LvItem.iSubItem = 4;
+	LvItem.pszText = L"TODO";
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 }
 
 void LoadMainListView()
