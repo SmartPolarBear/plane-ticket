@@ -5,7 +5,7 @@
 typedef struct tagTICKET
 {
 	int iPlaneId;
-	LPWSTR pszTicketNumber;
-	LPWSTR pszOwnerName;
-	LPWSTR pszOwnerId;
-}TICKET,*LPTICKET;
+	WCHAR pszTicketNumber[32];
+	WCHAR pszOwnerName[32];
+	WCHAR pszOwnerId[32];
+}TICKET, * LPTICKET;

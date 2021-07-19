@@ -4,17 +4,25 @@
 #include "framework.h"
 #include "plane-ticket.h"
 
+#include "document.h"
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+DOCUMENT doc;
 
-// List View
+// Main List View
 HWND hWndMainListView;
 LVCOLUMN LvCol;
 LVITEM LvItem;
+
+// Right Panel
+HWND hWndRightPanel;
+const UINT32 iRightPanelWidth = 200, iRightPanelPaddingLeft = 4, iRightPanelPaddingRight;
+const UINT32 iInnerButtonWidth = 180, iInnerButtonHeight = 40, iInnerButtonPadding = 10;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -29,6 +37,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nCmdShow)
 {
+	INITCOMMONCONTROLSEX icc;
+
+	// Initialize common controls.
+	icc.dwSize = sizeof(icc);
+	icc.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&icc);
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -88,11 +103,39 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 
+HWND CreateRightPanel(HWND hwndParent)
+{
+	RECT rcClient;                       // The parent window's client area.
+	GetClientRect(hwndParent, &rcClient);
+
+	HWND hWndGroup = CreateWindow(WC_BUTTON, L"Plane Action",
+		WS_CHILD | WS_VISIBLE | WS_GROUP | BS_GROUPBOX,
+		rcClient.right - iRightPanelWidth - iRightPanelPaddingRight,
+		0,
+		iRightPanelWidth,
+		rcClient.bottom - rcClient.top,
+
+		hwndParent, NULL, hInst, 0);
+
+	return hWndGroup;
+}
+
+void LoadRightPanel()
+{
+	RECT rcClient;
+	GetClientRect(hWndRightPanel, &rcClient);
+
+	HWND hWndButtonAdd = CreateWindow(WC_BUTTON, L"New Plane",
+		WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP | BS_DEFPUSHBUTTON,
+		rcClient.left + iInnerButtonPadding,
+		rcClient.top + iInnerButtonPadding + 20,
+		iInnerButtonWidth,
+		iInnerButtonHeight,
+		hWndRightPanel, NULL, hInst, 0);
+}
+
 HWND CreateMainListView(HWND hwndParent)
 {
-	INITCOMMONCONTROLSEX icex;           // Structure for control initialization.
-	icex.dwICC = ICC_LISTVIEW_CLASSES;
-	InitCommonControlsEx(&icex);
 
 	RECT rcClient;                       // The parent window's client area.
 	GetClientRect(hwndParent, &rcClient);
@@ -101,8 +144,9 @@ HWND CreateMainListView(HWND hwndParent)
 	HWND hWndListView = CreateWindow(WC_LISTVIEW,
 		L"",
 		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS,
-		0, 0,
-		rcClient.right - rcClient.left,
+		0,
+		0,
+		rcClient.right - rcClient.left - iRightPanelWidth - iRightPanelPaddingLeft - iRightPanelPaddingRight,
 		rcClient.bottom - rcClient.top,
 		hwndParent,
 		(HMENU)IDM_MAIN_LISTVIEW,
@@ -116,7 +160,7 @@ BOOL LoadListView()
 {
 	memset(&LvCol, 0, sizeof(LvCol));
 	LvCol.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	LvCol.cx = 0x100;
+	LvCol.cx = 128;
 
 	SendMessage(hWndMainListView, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
@@ -171,16 +215,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
+	hWndRightPanel = CreateRightPanel(hWnd);
+	if (hWndRightPanel == NULL)
+	{
+		return FALSE;
+	}
+	LoadRightPanel();
+
 	hWndMainListView = CreateMainListView(hWnd);
 	if (hWndMainListView == NULL)
 	{
 		return FALSE;
 	}
-
 	LoadListView();
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+
+	InitDocument(&doc);
 
 	return TRUE;
 }
@@ -210,6 +262,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
+			break;
+		case ID_FILE_NEW:
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
