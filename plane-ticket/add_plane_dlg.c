@@ -15,7 +15,7 @@ UINT64 hashing(LPWSTR str)
 		if (str[i] != 0)
 		{
 			Ret *= 10;
-			Ret += (int)str[i];
+			Ret += (int)(str[i] - L'0');
 		}
 	}
 	return Ret;

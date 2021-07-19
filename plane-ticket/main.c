@@ -286,8 +286,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	InitDocument(&doc);
-	LoadDocument(&doc);
+	if (!InitDocument(&doc))
+	{
+		MessageBox(hWnd, L"Cannot initialize data.", L"Failure", MB_OK | MB_ICONERROR);
+	}
+
+	if (!LoadDocument(&doc))
+	{
+		MessageBox(hWnd, L"Cannot read data.", L"Failure", MB_OK | MB_ICONERROR);
+	}
 
 	LoadMainListView();
 

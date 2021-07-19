@@ -10,87 +10,93 @@ static inline BOOL InitPlaneHeader(LPPLANEHEADER lpPlaneHeader)
 
 	if (FileExists(pszDocumentName))
 	{
-		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_ALL, FILE_SHARE_READ,
+		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_READ, FILE_SHARE_READ,
 			NULL, OPEN_EXISTING, 0, NULL);
 
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			DWORD dwBytesRead = 0;
-			if (!ReadFile(hFile, (LPVOID)lpPlaneHeader, sizeof(PLANEHEADER), &dwBytesRead, NULL))
-			{
-				CloseHandle(hFile);
-				return FALSE;
-			}
-			CloseHandle(hFile);
-		}
-		else
+		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			return FALSE;
 		}
-	}
-	else
-	{
-		lpPlaneHeader->iTotal = 0;
 
-		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_ALL, FILE_SHARE_WRITE,
-			NULL, CREATE_ALWAYS, 0, NULL);
-
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			DWORD dwBytesWrite = 0;
-			if (!WriteFile(hFile, (LPVOID)lpPlaneHeader,
-				sizeof(PLANEHEADER) + lpPlaneHeader->iTotal * sizeof(PLANEINFO),
-				&dwBytesWrite, NULL))
-			{
-				CloseHandle(hFile);
-				return FALSE;
-			}
-
-			CloseHandle(hFile);
-
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-static inline BOOL LoadTicket(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane, LPTICKETHEADER lpTicketHeader)
-{
-	UINT64 newSize = sizeof(TICKETHEADER) + lpTicketHeader->iTotal * sizeof(TICKETINFO);
-	LPVOID res = realloc(lpDoc->lpPlaneHeader, newSize);
-	if (!res)
-	{
-		return FALSE;
-	}
-	lpDoc->lpPlaneHeader = res;
-
-
-	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_ALL, FILE_SHARE_READ,
-		NULL, OPEN_EXISTING, 0, NULL);
-
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
 		DWORD dwBytesRead = 0;
-		if (!ReadFile(hFile, (LPVOID)res, newSize, &dwBytesRead, NULL))
+		if (!ReadFile(hFile, (LPVOID)lpPlaneHeader, sizeof(PLANEHEADER), &dwBytesRead, NULL))
 		{
 			CloseHandle(hFile);
 			return FALSE;
 		}
 		CloseHandle(hFile);
+
 	}
 	else
 	{
-		return FALSE;
+		lpPlaneHeader->iTotal = 0;
+
+		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_WRITE, FILE_SHARE_WRITE,
+			NULL, CREATE_ALWAYS, 0, NULL);
+
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			return FALSE;
+		}
+
+		DWORD dwBytesWrite = 0;
+		if (!WriteFile(hFile, (LPVOID)lpPlaneHeader,
+			sizeof(PLANEHEADER) + lpPlaneHeader->iTotal * sizeof(PLANEINFO),
+			&dwBytesWrite, NULL))
+		{
+			CloseHandle(hFile);
+			return FALSE;
+		}
+
+		CloseHandle(hFile);
+
+
 	}
 
 	return TRUE;
 }
 
-static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
+static inline LPTICKETHEADER TicketForPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
+{
+	for (int i = 0; i < lpDoc->iTicketHeaderCount; i++)
+	{
+		if (lpDoc->lpTicketHeaders[i]->iPlaneId == lpPlane->Plane.iId)
+		{
+			return lpDoc->lpTicketHeaders[i];
+		}
+	}
+	return NULL;
+}
+
+static inline LPTICKETHEADER LoadTicket(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane, LPTICKETHEADER lpTicketHeader)
+{
+	UINT64 newSize = sizeof(TICKETHEADER) + lpTicketHeader->iTotal * sizeof(TICKETINFO);
+	LPVOID res = realloc(lpTicketHeader, newSize);
+	if (!res)
+	{
+		return NULL;
+	}
+
+	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, 0, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return NULL;
+	}
+
+	DWORD dwBytesRead = 0;
+	if (!ReadFile(hFile, (LPVOID)res, newSize, &dwBytesRead, NULL))
+	{
+		CloseHandle(hFile);
+		return NULL;
+	}
+	CloseHandle(hFile);
+
+	return res;
+}
+
+static inline LPTICKETHEADER CreateTicketHeaderEntry(LPDOCUMENT lpDoc)
 {
 	++lpDoc->iTicketHeaderCount;
 	LPTICKETHEADER* res = realloc(lpDoc->lpTicketHeaders,
@@ -108,7 +114,16 @@ static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
 	}
 
 	memset(lpNewHeader, 0, sizeof(TICKETHEADER));
+	return lpNewHeader;
+}
 
+static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
+{
+	LPTICKETHEADER lpNewHeader = CreateTicketHeaderEntry(lpDoc);
+	if (!lpNewHeader)
+	{
+		return FALSE;
+	}
 
 	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_READ, FILE_SHARE_READ,
 		NULL, OPEN_ALWAYS, 0, NULL);
@@ -126,38 +141,42 @@ static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
 	}
 	CloseHandle(hFile);
 
-	return LoadTicket(lpDoc, lpPlane, lpNewHeader);
+	lpNewHeader = LoadTicket(lpDoc, lpPlane, lpNewHeader);
+	if (!lpNewHeader)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static inline BOOL SavePlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
 {
-	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_ALL, FILE_SHARE_WRITE,
+	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_WRITE, FILE_SHARE_WRITE,
 		NULL, CREATE_ALWAYS, 0, NULL);
-
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		for (int i = 0; i < lpDoc->iTicketHeaderCount; i++)
-		{
-			if (lpDoc->lpTicketHeaders[i]->iPlaneId == lpPlane->Plane.iId)
-			{
-				DWORD dwBytesWrite = 0;
-				if (!WriteFile(hFile, (LPVOID)&lpDoc->lpTicketHeaders[i],
-					sizeof(TICKETHEADER) + lpDoc->lpTicketHeaders[i]->iTotal * sizeof(TICKETINFO),
-					&dwBytesWrite, NULL))
-				{
-					CloseHandle(hFile);
-					return FALSE;
-				}
-
-				CloseHandle(hFile);
-				break;
-			}
-		}
-	}
-	else
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		return FALSE;
 	}
+
+	LPTICKETHEADER lpTicketHeader = TicketForPlane(lpDoc, lpPlane);
+
+	if (!lpTicketHeader)
+	{
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	DWORD dwBytesWrite = 0;
+	if (!WriteFile(hFile, (LPVOID)lpTicketHeader,
+		sizeof(TICKETHEADER) + lpTicketHeader->iTotal * sizeof(TICKETINFO),
+		&dwBytesWrite, NULL))
+	{
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	CloseHandle(hFile);
 
 	return TRUE;
 }
@@ -179,9 +198,12 @@ BOOL InitDocument(LPDOCUMENT lpDoc)
 	lpDoc->lpPlaneHeader = malloc(sizeof(PLANEHEADER));
 
 	BOOL ret = InitPlaneHeader(lpDoc->lpPlaneHeader);
-	if (!ret)return ret;
+	if (!ret)
+	{
+		return ret;
+	}
 
-	return 0;
+	return TRUE;
 }
 
 BOOL LoadDocument(LPDOCUMENT lpDoc)
@@ -272,33 +294,28 @@ BOOL SaveDocument(LPDOCUMENT lpDoc)
 	HANDLE hFile = CreateFile(pszDocumentName, GENERIC_WRITE, FILE_SHARE_WRITE,
 		NULL, CREATE_ALWAYS, 0, NULL);
 
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		DWORD dwBytesWrite = 0;
-		if (!WriteFile(hFile, (LPVOID)lpDoc->lpPlaneHeader,
-			sizeof(PLANEHEADER) + lpDoc->lpPlaneHeader->iTotal * sizeof(PLANEINFO),
-			&dwBytesWrite, NULL))
-		{
-			CloseHandle(hFile);
-			return FALSE;
-		}
-
-		CloseHandle(hFile);
-	}
-	else
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		return FALSE;
 	}
+
+	DWORD dwBytesWrite = 0;
+	if (!WriteFile(hFile, (LPVOID)lpDoc->lpPlaneHeader,
+		sizeof(PLANEHEADER) + lpDoc->lpPlaneHeader->iTotal * sizeof(PLANEINFO),
+		&dwBytesWrite, NULL))
+	{
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	CloseHandle(hFile);
+
 
 	return TRUE;
 }
 
 void DestoryDocument(LPDOCUMENT lpDoc)
 {
-	for (int i = 0; i < lpDoc->iTicketHeaderCount; i++)
-	{
-		free(lpDoc->lpTicketHeaders[i]);
-	}
 	free(lpDoc->lpTicketHeaders);
 	free(lpDoc->lpPlaneHeader);
 }
@@ -347,7 +364,6 @@ BOOL AddPlane(LPDOCUMENT lpDoc, PLANE Plane)
 	memset(&newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1], 0,
 		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1]));
 
-
 	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane = Plane;
 	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bDeleted = FALSE;
 	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bEnd = FALSE;
@@ -355,6 +371,15 @@ BOOL AddPlane(LPDOCUMENT lpDoc, PLANE Plane)
 	memcpy(&newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].szConfigFileName,
 		newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId,
 		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId));
+
+	LPTICKETHEADER lpNewHeader = CreateTicketHeaderEntry(lpDoc);
+	if (!lpNewHeader)
+	{
+		return FALSE;
+	}
+
+	lpNewHeader->iPlaneId = newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.iId;
+	lpNewHeader->iTotal = newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.iRemain;
 
 	return TRUE;
 }
