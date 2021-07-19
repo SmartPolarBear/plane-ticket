@@ -6,10 +6,14 @@
 
 #include "document.h"
 
+#include "add_plane_dlg.h"
+#include "about_dlg.h"
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
+HWND hMainWnd;
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 DOCUMENT doc;
@@ -134,6 +138,7 @@ void LoadRightPanel()
 		hWndRightPanel, NULL, hInst, 0);
 }
 
+
 HWND CreateMainListView(HWND hwndParent)
 {
 
@@ -156,7 +161,7 @@ HWND CreateMainListView(HWND hwndParent)
 	return hWndListView;
 }
 
-BOOL LoadListView()
+void SetMainListViewColumns()
 {
 	memset(&LvCol, 0, sizeof(LvCol));
 	LvCol.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
@@ -171,6 +176,10 @@ BOOL LoadListView()
 		SendMessage(hWndMainListView, LVM_INSERTCOLUMN, i, (LPARAM)&LvCol);
 	}
 
+}
+
+void MainListViewLoadPlane(LPPLANE lpPlane)
+{
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
 //  Setting properties Of members:
@@ -193,6 +202,43 @@ BOOL LoadListView()
 	}
 }
 
+void LoadMainListView()
+{
+	UINT64 iCount = 0;
+	BOOL ret = DocumentLoadPlanes(&doc, NULL, &iCount);
+	if (!ret)
+	{
+		MessageBox(hMainWnd, L"Cannot load flights", L"Failure", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (!iCount)
+	{
+		return;
+	}
+
+	LPPLANE Planes = malloc(sizeof(PLANE) * iCount);
+	if (!Planes)
+	{
+		MessageBox(hMainWnd, L"Cannot allocate enough memory for flights", L"Failure", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	ret = DocumentLoadPlanes(&doc, Planes, &iCount);
+	if (!ret)
+	{
+		MessageBox(hMainWnd, L"Cannot load flights", L"Failure", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	ListView_DeleteAllItems(hWndMainListView);
+
+	for (int i = 0; i < iCount; i++)
+	{
+		MainListViewLoadPlane(&Planes[i]);
+	}
+}
+
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
 //
@@ -209,6 +255,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+
+	hMainWnd = hWnd;
 
 	if (!hWnd)
 	{
@@ -227,12 +275,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	{
 		return FALSE;
 	}
-	LoadListView();
+	SetMainListViewColumns();
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
 	InitDocument(&doc);
+	LoadDocument(&doc);
+
+	LoadMainListView();
 
 	return TRUE;
 }
@@ -257,8 +308,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Parse the menu selections:
 		switch (wmId)
 		{
+		case IDM_FLIGHT_ADD:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDPLANEDLG), hWnd, AddPlaneDialog);
+			LoadMainListView();
+			break;
 		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutDialog);
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
@@ -279,6 +334,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
+		// free the document
+		SaveDocument(&doc);
+		DestoryDocument(&doc);
+
 		PostQuitMessage(0);
 		break;
 	default:
@@ -287,22 +346,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
-}

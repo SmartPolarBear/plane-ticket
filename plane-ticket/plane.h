@@ -5,6 +5,7 @@ typedef struct tagPLANE
 {
 	UINT64 iId;
 	WCHAR pszCompany[32];
+	WCHAR pszFlightId[32];
 	WCHAR pszFrom[32];
 	WCHAR pszTo[32];
 

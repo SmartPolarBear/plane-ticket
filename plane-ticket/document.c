@@ -141,7 +141,7 @@ static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
 static inline BOOL SavePlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
 {
 	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_ALL, FILE_SHARE_READ,
-		NULL, OPEN_EXISTING, 0, NULL);
+		NULL, CREATE_NEW, 0, NULL);
 
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
@@ -250,7 +250,7 @@ BOOL SaveDocument(LPDOCUMENT lpDoc)
 		}
 	}
 
-	HANDLE hFile = CreateFile(pszDocumentName, GENERIC_ALL, FILE_SHARE_READ,
+	HANDLE hFile = CreateFile(pszDocumentName, GENERIC_WRITE, FILE_SHARE_WRITE,
 		NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hFile != INVALID_HANDLE_VALUE)
@@ -323,7 +323,19 @@ BOOL AddPlane(LPDOCUMENT lpDoc, PLANE Plane)
 	LPPLANEHEADER newHeader = realloc(lpDoc->lpPlaneHeader, newSize);
 	if (!newHeader)return FALSE;
 	lpDoc->lpPlaneHeader = newHeader;
+
+	memset(&newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1], 0,
+		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1]));
+
+
 	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane = Plane;
+	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bDeleted = FALSE;
+	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bEnd = FALSE;
+
+	memcpy(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].szConfigFileName,
+		newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId,
+		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId));
+
 	return TRUE;
 }
 
@@ -334,7 +346,7 @@ BOOL RemovePlane(LPDOCUMENT lpDoc, PLANE Plane)
 		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)continue;
 		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)break;
 
-		if (lpDoc->lpPlaneHeader->Planes[i].Plane.iId==Plane.iId)
+		if (lpDoc->lpPlaneHeader->Planes[i].Plane.iId == Plane.iId)
 		{
 			lpDoc->lpPlaneHeader->Planes[i].bDeleted = TRUE;
 		}
