@@ -5,70 +5,68 @@
 #include "plane.h"
 #include "ticket.h"
 
-typedef struct tagTICKETINFO
-{
-	TICKET Ticket;
-	BOOL bDeleted;
-	BOOL bEnd;
-}TICKETINFO, * LPTICKETINFO;
+#include <stdint.h>
 
-typedef struct tagTICKETHEADER
+enum
 {
-	UINT64 iTotal;
-	UINT64 iPlaneId;
-	TICKETINFO Tickets[0];
-}TICKETHEADER, * LPTICKETHEADER;
+	FFLAG_DELETE = 0b1
+};
 
-typedef struct tagPLANEINFO
+enum
 {
-	WCHAR szConfigFileName[256];
-	PLANE Plane;
-	BOOL bDeleted;
-	BOOL bEnd;
-}PLANEINFO, * LPPLANEINFO;
+	TFLAG_DELETE = 0b1
+};
 
-typedef struct tagPLANEHEADER
+typedef struct flight
 {
-	UINT64 iTotal;
-	PLANEINFO Planes[0];
-}PLANEHEADER, * LPPLANEHEADER;
+	wchar_t id[32];
+	wchar_t company[32];
+	wchar_t from[32];
+	wchar_t to[32];
+	uint64_t sold;
+	uint64_t remaining;
 
-typedef enum tagScope
+	uint64_t flight_key;
+	uint64_t flags;
+}flight_t;
+
+typedef struct ticket
 {
-	SC_INVALID, SC_TO, SC_TIME, SC_POS, SC_CONTINIOUS
-}SCOOP;
+	wchar_t ticket_id[32];
+	wchar_t owner[32];
+	wchar_t owner_id[32];
 
-typedef struct tagDocument
+	uint64_t flight_key;
+	uint64_t flags;
+}ticket_t;
+
+typedef struct document_header
 {
-	LPPLANEHEADER lpPlaneHeader;
+	uint64_t flight_count;
+}document_header_t;
 
-	LPTICKETHEADER* lpTicketHeaders;
-	UINT64 iTicketHeaderCount;
+typedef struct document
+{
+	document_header_t* header;
+	flight_t* flights;
 
 	struct
 	{
-		LPPLANEINFO lpPlaneQueryResult;
-		UINT64 iPlaneQueryResult;
-	} QueryResult;
+		int is_queried;
+	}query;
 
-	struct {
-		BOOL bHasQuery;
-		LPVOID pQueryData;
-		SCOOP Scoop;
-	} Query;
-}DOCUMENT, * LPDOCUMENT;
+	struct
+	{
+		int is_sorted;
+	}sort;
 
-BOOL InitDocument(LPDOCUMENT lpDoc);
-BOOL LoadDocument(LPDOCUMENT lpDoc);
-BOOL SaveDocument(LPDOCUMENT lpDoc);
-void DestoryDocument(LPDOCUMENT lpDoc);
+	flight_t* result;
+}document_t;
 
-void SetQuery(LPDOCUMENT lpDoc, BOOL hasQuery, LPVOID pQueryData, SCOOP sc);
-void ClearQuery(LPDOCUMENT lpDoc);
-BOOL DocumentLoadPlanes(LPDOCUMENT lpDoc, LPPLANE lpBuf, UINT64* iCount);
+int load_document(document_t* doc);
+int save_document(document_t* doc);
 
-BOOL AddPlane(LPDOCUMENT lpDoc, PLANE Plane);
-BOOL RemovePlane(LPDOCUMENT lpDoc, PLANE Plane);
-BOOL PlaneBookTicket(LPDOCUMENT lpDoc, PLANE PlaneInfo, TICKET ticket);
-BOOL PlaneRefoundTicket(LPDOCUMENT lpDoc, PLANE PlaneInfo, TICKET ticket);
+int document_add_flight(document_t* doc, flight_t* flight);
+void document_remove_flight(document_t* doc, flight_t* flight);
 
+void destroy_document(document_t* doc);

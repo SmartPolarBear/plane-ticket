@@ -2,4 +2,3 @@
 
 #include "framework.h"
 
-BOOL FileExists(LPCTSTR szPath);

@@ -1,426 +1,118 @@
-#include "document.h"
+#define _CRT_SECURE_NO_WARNINGS
 
+#include "document.h"
+#include "error.h"
 #include "helper.h"
 
-LPCWSTR pszDocumentName = L"main_db";
+#include <io.h>
+#include <stdio.h>
 
-static inline BOOL InitPlaneHeader(LPPLANEHEADER lpPlaneHeader)
+const char* main_db_name = "main_db";
+
+int load_document(document_t* doc)
 {
-	memset(lpPlaneHeader, 0, sizeof(PLANEHEADER));
+	memset(doc, 0, sizeof(document_t));
 
-	if (FileExists(pszDocumentName))
+	doc->header = (document_t*)malloc(sizeof(document_t));
+	if (!doc->header)
 	{
-		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_READ, FILE_SHARE_READ,
-			NULL, OPEN_EXISTING, 0, NULL);
-
-		if (hFile == INVALID_HANDLE_VALUE)
-		{
-			return FALSE;
-		}
-
-		DWORD dwBytesRead = 0;
-		if (!ReadFile(hFile, (LPVOID)lpPlaneHeader, sizeof(PLANEHEADER), &dwBytesRead, NULL))
-		{
-			CloseHandle(hFile);
-			return FALSE;
-		}
-		CloseHandle(hFile);
-
+		return ERROR_MEMORY_ALLOC;
 	}
-	else
+	memset(doc->header, 0, sizeof(document_t));
+
+	doc->flights = NULL;
+
+	if (_access(main_db_name, 2) == -1)return ERROR_SUCCESS;
+
+	FILE* main_db = fopen(main_db_name, "rb");
+	if (!doc->header)
 	{
-		lpPlaneHeader->iTotal = 0;
-
-		HANDLE hFile = CreateFile(pszDocumentName, GENERIC_WRITE, FILE_SHARE_WRITE,
-			NULL, CREATE_ALWAYS, 0, NULL);
-
-		if (hFile == INVALID_HANDLE_VALUE)
-		{
-			return FALSE;
-		}
-
-		DWORD dwBytesWrite = 0;
-		if (!WriteFile(hFile, (LPVOID)lpPlaneHeader,
-			sizeof(PLANEHEADER) + lpPlaneHeader->iTotal * sizeof(PLANEINFO),
-			&dwBytesWrite, NULL))
-		{
-			CloseHandle(hFile);
-			return FALSE;
-		}
-
-		CloseHandle(hFile);
-
-
+		return ERROR_OPENFILE;
 	}
 
-	return TRUE;
+	if (fread(doc->header, sizeof(document_header_t), 1, main_db) != 1)
+	{
+		fclose(main_db);
+		return ERROR_RWFILE;
+	}
+
+	doc->flights = (flight_t*)malloc(sizeof(flight_t) * doc->header->flight_count);
+	if (!doc->flights)
+	{
+		fclose(main_db);
+		return ERROR_MEMORY_ALLOC;
+	}
+	memset(doc->flights, 0, sizeof(flight_t) * doc->header->flight_count);
+
+
+	if (fread(doc->flights, sizeof(flight_t), doc->header->flight_count, main_db) != doc->header->flight_count)
+	{
+		fclose(main_db);
+		return ERROR_RWFILE;
+	}
+
+	fclose(main_db);
+
+	doc->result = doc->flights;
+
+	return ERROR_SUCCESS;
 }
 
-static inline LPTICKETHEADER TicketForPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
+int save_document(document_t* doc)
 {
-	for (int i = 0; i < lpDoc->iTicketHeaderCount; i++)
+	FILE* main_db = fopen(main_db_name, "wb");
+	if (!doc->header)
 	{
-		if (lpDoc->lpTicketHeaders[i]->iPlaneId == lpPlane->Plane.iId)
-		{
-			return lpDoc->lpTicketHeaders[i];
-		}
+		return ERROR_OPENFILE;
 	}
-	return NULL;
+
+	if (fwrite(doc->header, sizeof(document_header_t), 1, main_db) != 1)
+	{
+		fclose(main_db);
+		return ERROR_RWFILE;
+	}
+
+	if (fwrite(doc->flights, sizeof(flight_t), doc->header->flight_count, main_db) != doc->header->flight_count)
+	{
+		fclose(main_db);
+		return ERROR_RWFILE;
+	}
+
+	fclose(main_db);
+	return ERROR_SUCCESS;
 }
 
-static inline LPTICKETHEADER LoadTicket(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane, LPTICKETHEADER lpTicketHeader)
+int document_add_flight(document_t* doc, flight_t* flight)
 {
-	UINT64 newSize = sizeof(TICKETHEADER) + lpTicketHeader->iTotal * sizeof(TICKETINFO);
-	LPVOID res = realloc(lpTicketHeader, newSize);
-	if (!res)
+	doc->header->flight_count++;
+	void* new_mem = realloc(doc->flights, sizeof(flight_t) * doc->header->flight_count);
+	if (!new_mem)
 	{
-		return NULL;
+		return ERROR_MEMORY_ALLOC;
 	}
+	doc->flights = new_mem;
 
-	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_READ, FILE_SHARE_READ,
-		NULL, OPEN_EXISTING, 0, NULL);
+	doc->flights[doc->header->flight_count - 1] = *flight;
 
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return NULL;
-	}
-
-	DWORD dwBytesRead = 0;
-	if (!ReadFile(hFile, (LPVOID)res, newSize, &dwBytesRead, NULL))
-	{
-		CloseHandle(hFile);
-		return NULL;
-	}
-	CloseHandle(hFile);
-
-	return res;
-}
-
-static inline LPTICKETHEADER CreateTicketHeaderEntry(LPDOCUMENT lpDoc)
-{
-	++lpDoc->iTicketHeaderCount;
-	LPTICKETHEADER* res = realloc(lpDoc->lpTicketHeaders,
-		lpDoc->iTicketHeaderCount * sizeof(LPTICKETHEADER));
-
-	if (!res)
-		return FALSE;
-
-	lpDoc->lpTicketHeaders = res;
-
-	LPTICKETHEADER lpNewHeader = res[lpDoc->iTicketHeaderCount - 1] = malloc(sizeof(TICKETHEADER));
-	if (!lpNewHeader)
-	{
-		return FALSE;
-	}
-
-	memset(lpNewHeader, 0, sizeof(TICKETHEADER));
-	return lpNewHeader;
-}
-
-static inline BOOL LoadPlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
-{
-	LPTICKETHEADER lpNewHeader = CreateTicketHeaderEntry(lpDoc);
-	if (!lpNewHeader)
-	{
-		return FALSE;
-	}
-
-	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_READ, FILE_SHARE_READ,
-		NULL, OPEN_ALWAYS, 0, NULL);
-
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-
-	DWORD dwBytesRead = 0;
-	if (!ReadFile(hFile, (LPVOID)lpNewHeader, sizeof(TICKETHEADER), &dwBytesRead, NULL))
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-	CloseHandle(hFile);
-
-	lpNewHeader = LoadTicket(lpDoc, lpPlane, lpNewHeader);
-	if (!lpNewHeader)
-	{
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static inline BOOL SavePlane(LPDOCUMENT lpDoc, LPPLANEINFO lpPlane)
-{
-	HANDLE hFile = CreateFile(lpPlane->szConfigFileName, GENERIC_WRITE, FILE_SHARE_WRITE,
-		NULL, CREATE_ALWAYS, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-
-	LPTICKETHEADER lpTicketHeader = TicketForPlane(lpDoc, lpPlane);
-
-	if (!lpTicketHeader)
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	DWORD dwBytesWrite = 0;
-	if (!WriteFile(hFile, (LPVOID)lpTicketHeader,
-		sizeof(TICKETHEADER) + lpTicketHeader->iTotal * sizeof(TICKETINFO),
-		&dwBytesWrite, NULL))
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	CloseHandle(hFile);
-
-	return TRUE;
-}
-
-
-static inline BOOL ApplyQuery(LPDOCUMENT lpDoc, LPPLANEINFO lpPlaneInfo)
-{
-	if (!lpDoc->Query.bHasQuery)return TRUE;
-	switch (lpDoc->Query.Scoop)
-	{
-	default:
-		return FALSE;
-	}
-}
-
-BOOL InitDocument(LPDOCUMENT lpDoc)
-{
-	memset(lpDoc, 0, sizeof(DOCUMENT));
-	lpDoc->lpPlaneHeader = malloc(sizeof(PLANEHEADER));
-
-	BOOL ret = InitPlaneHeader(lpDoc->lpPlaneHeader);
-	if (!ret)
-	{
-		return ret;
-	}
-
-	return TRUE;
-}
-
-BOOL LoadDocument(LPDOCUMENT lpDoc)
-{
-
-	HANDLE hFile = CreateFile(pszDocumentName, GENERIC_READ, FILE_SHARE_READ,
-		NULL, CREATE_NEW, 0, NULL);
-	if (GetLastError() == ERROR_FILE_EXISTS)
-	{
-		hFile = CreateFile(pszDocumentName, GENERIC_READ, FILE_SHARE_READ,
-			NULL, OPEN_EXISTING, 0, NULL);
-	}
-
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-
-	UINT64 newSize = sizeof(PLANEHEADER);
-	LPVOID res = realloc(lpDoc->lpPlaneHeader, newSize);
-	if (!res)
-	{
-		return FALSE;
-	}
-
-	lpDoc->lpPlaneHeader = res;
-
-	DWORD dwBytesRead = 0;
-	if (!ReadFile(hFile, (LPVOID)res, sizeof(PLANEHEADER), &dwBytesRead, NULL))
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	newSize = sizeof(PLANEHEADER) + lpDoc->lpPlaneHeader->iTotal * sizeof(PLANEINFO);
-	res = realloc(lpDoc->lpPlaneHeader, newSize);
-	if (!res)
-	{
-		return FALSE;
-	}
-	lpDoc->lpPlaneHeader = res;
-
-	SetFilePointer(hFile, 0, 0, FILE_BEGIN);
-	if (!ReadFile(hFile, (LPVOID)res, newSize, &dwBytesRead, NULL))
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	if (newSize != dwBytesRead)
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	CloseHandle(hFile);
-
-
-	for (int i = 0; i < lpDoc->lpPlaneHeader->iTotal; i++)
-	{
-		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)
-			continue;
-		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)
-			break;
-
-		if (!LoadPlane(lpDoc, &lpDoc->lpPlaneHeader->Planes[i]))
-		{
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-BOOL SaveDocument(LPDOCUMENT lpDoc)
-{
-	for (int i = 0; i < lpDoc->lpPlaneHeader->iTotal; i++)
-	{
-		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)continue;
-		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)break;
-
-		if (!SavePlane(lpDoc, &lpDoc->lpPlaneHeader->Planes[i]))
-		{
-			return FALSE;
-		}
-	}
-
-	HANDLE hFile = CreateFile(pszDocumentName, GENERIC_WRITE, FILE_SHARE_WRITE,
-		NULL, CREATE_ALWAYS, 0, NULL);
-
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-
-	DWORD dwBytesWrite = 0;
-	if (!WriteFile(hFile, (LPVOID)lpDoc->lpPlaneHeader,
-		sizeof(PLANEHEADER) + lpDoc->lpPlaneHeader->iTotal * sizeof(PLANEINFO),
-		&dwBytesWrite, NULL))
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	CloseHandle(hFile);
-
-
-	return TRUE;
-}
-
-void DestoryDocument(LPDOCUMENT lpDoc)
-{
-	free(lpDoc->lpTicketHeaders);
-	free(lpDoc->lpPlaneHeader);
-}
-
-BOOL DocumentLoadPlanes(LPDOCUMENT lpDoc, LPPLANE lpBuf, UINT64* iCount)
-{
-	UINT64 iValidCount = 0;
-	for (int i = 0; i < lpDoc->lpPlaneHeader->iTotal; i++)
-	{
-		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)continue;
-		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)break;
-
-		iValidCount++;
-	}
-
-	if (!lpBuf)
-	{
-		*iCount = iValidCount;
-		return TRUE;
-	}
-
-	UINT64 idx = 0;
-	for (int i = 0; i < lpDoc->lpPlaneHeader->iTotal; i++)
-	{
-		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)continue;
-		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)break;
-
-		if (ApplyQuery(lpDoc, &lpDoc->lpPlaneHeader->Planes[i]))
-		{
-			memcpy(lpBuf + idx, &lpDoc->lpPlaneHeader->Planes[i].Plane, sizeof(PLANE));
-		}
-	}
-
-	return TRUE;
-}
-
-BOOL AddPlane(LPDOCUMENT lpDoc, PLANE Plane)
-{
-	lpDoc->lpPlaneHeader->iTotal++;
-	UINT64 newSize = sizeof(PLANEHEADER) + (lpDoc->lpPlaneHeader->iTotal) * sizeof(PLANEINFO);
-	LPPLANEHEADER newHeader = realloc(lpDoc->lpPlaneHeader, newSize);
-	if (!newHeader)return FALSE;
-
-	lpDoc->lpPlaneHeader = newHeader;
-
-	memset(&newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1], 0,
-		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1]));
-
-	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane = Plane;
-	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bDeleted = FALSE;
-	newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].bEnd = FALSE;
-
-	memcpy(&newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].szConfigFileName,
-		newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId,
-		sizeof(newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.pszFlightId));
-
-	LPTICKETHEADER lpNewHeader = CreateTicketHeaderEntry(lpDoc);
-	if (!lpNewHeader)
-	{
-		return FALSE;
-	}
-
-	lpNewHeader->iPlaneId = newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.iId;
-	lpNewHeader->iTotal = newHeader->Planes[lpDoc->lpPlaneHeader->iTotal - 1].Plane.iRemain;
-
-	return TRUE;
-}
-
-BOOL RemovePlane(LPDOCUMENT lpDoc, PLANE Plane)
-{
-	for (int i = 0; i < lpDoc->lpPlaneHeader->iTotal; i++)
-	{
-		if (lpDoc->lpPlaneHeader->Planes[i].bDeleted)continue;
-		if (lpDoc->lpPlaneHeader->Planes[i].bEnd)break;
-
-		if (lpDoc->lpPlaneHeader->Planes[i].Plane.iId == Plane.iId)
-		{
-			lpDoc->lpPlaneHeader->Planes[i].bDeleted = TRUE;
-		}
-	}
-	return TRUE;
-}
-
-BOOL PlaneBookTicket(LPDOCUMENT lpDoc, PLANE PlaneInfo, TICKET ticket)
-{
 	return 0;
 }
 
-BOOL PlaneRefoundTicket(LPDOCUMENT lpDoc, PLANE PlaneInfo, TICKET ticket)
+void document_remove_flight(document_t* doc, flight_t* flight)
 {
-	return 0;
+	for (int i = 0; i < doc->header->flight_count; i++)
+	{
+		if (doc->flights[doc->header->flight_count - 1].flight_key == flight->flight_key)
+		{
+			doc->flights[doc->header->flight_count - 1].flags |= FFLAG_DELETE;
+		}
+	}
 }
 
-
-
-void SetQuery(LPDOCUMENT lpDoc, BOOL hasQuery, LPVOID pQueryData, SCOOP sc)
+void destroy_document(document_t* doc)
 {
-	ClearQuery(lpDoc);
-
-	lpDoc->Query.bHasQuery = hasQuery;
-	lpDoc->Query.pQueryData = pQueryData;
-	lpDoc->Query.Scoop = sc;
-}
-
-void ClearQuery(LPDOCUMENT lpDoc)
-{
-	memset(&lpDoc->Query, 0, sizeof(lpDoc->Query));
+	free(doc->header);
+	if (doc->flights)
+	{
+		free(doc->flights);
+	}
 }

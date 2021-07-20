@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "plane-ticket.h"
+#include "main.h"
 
 #include "document.h"
 
@@ -16,7 +16,7 @@ HINSTANCE hInst;                                // current instance
 HWND hMainWnd;
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-DOCUMENT doc;
+document_t doc;
 
 // Main List View
 HWND hWndMainListView;
@@ -178,7 +178,7 @@ void SetMainListViewColumns()
 
 }
 
-void MainListViewLoadPlane(LPPLANE lpPlane)
+void MainListViewLoadFlight(flight_t *f)
 {
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
@@ -186,20 +186,20 @@ void MainListViewLoadPlane(LPPLANE lpPlane)
 	LvItem.cchTextMax = 256; // Max size of txst
 	LvItem.iItem = 0;          // choose item  
 	LvItem.iSubItem = 0;       // Put in first coluom
-	LvItem.pszText = lpPlane->pszFlightId; // Text to display (can be from a char variable) (Items)
+	LvItem.pszText = f->id; // Text to display (can be from a char variable) (Items)
 
 	SendMessage(hWndMainListView, LVM_INSERTITEM, 0, (LPARAM)&LvItem); // Send info to the Listview
 
 	LvItem.iSubItem = 1;
-	LvItem.pszText = lpPlane->pszCompany;
+	LvItem.pszText = f->company;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	LvItem.iSubItem = 2;
-	LvItem.pszText = lpPlane->pszFrom;
+	LvItem.pszText = f->from;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	LvItem.iSubItem = 3;
-	LvItem.pszText = lpPlane->pszTo;
+	LvItem.pszText = f->to;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 
@@ -210,38 +210,16 @@ void MainListViewLoadPlane(LPPLANE lpPlane)
 
 void LoadMainListView()
 {
-	UINT64 iCount = 0;
-	BOOL ret = DocumentLoadPlanes(&doc, NULL, &iCount);
-	if (!ret)
+	if (!doc.flights)
 	{
-		MessageBox(hMainWnd, L"Cannot load flights", L"Failure", MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	if (!iCount)
-	{
-		return;
-	}
-
-	LPPLANE Planes = malloc(sizeof(PLANE) * iCount);
-	if (!Planes)
-	{
-		MessageBox(hMainWnd, L"Cannot allocate enough memory for flights", L"Failure", MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	ret = DocumentLoadPlanes(&doc, Planes, &iCount);
-	if (!ret)
-	{
-		MessageBox(hMainWnd, L"Cannot load flights", L"Failure", MB_OK | MB_ICONERROR);
 		return;
 	}
 
 	ListView_DeleteAllItems(hWndMainListView);
 
-	for (int i = 0; i < iCount; i++)
+	for (int i = 0; i < doc.header->flight_count; i++)
 	{
-		MainListViewLoadPlane(&Planes[i]);
+		MainListViewLoadFlight(&doc.flights[i]);
 	}
 }
 
@@ -286,16 +264,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	if (!InitDocument(&doc))
+	int ret = load_document(&doc);
+	if (ret)
 	{
 		MessageBox(hWnd, L"Cannot initialize data.", L"Failure", MB_OK | MB_ICONERROR);
+		return TRUE;
 	}
-
-	if (!LoadDocument(&doc))
-	{
-		MessageBox(hWnd, L"Cannot read data.", L"Failure", MB_OK | MB_ICONERROR);
-	}
-
+	
 	LoadMainListView();
 
 	return TRUE;
@@ -348,8 +323,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_DESTROY:
 		// free the document
-		SaveDocument(&doc);
-		DestoryDocument(&doc);
+		int ret = save_document(&doc);
+		if (ret)
+		{
+			MessageBox(hWnd, L"Cannot save data.", L"Failure", MB_OK | MB_ICONERROR);
+		}
+
+		destroy_document(&doc);
 
 		PostQuitMessage(0);
 		break;

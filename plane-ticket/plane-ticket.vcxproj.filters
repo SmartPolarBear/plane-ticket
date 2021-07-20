@@ -24,13 +24,7 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="plane-ticket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="plane.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ticket.h">
+    <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="document.h">
@@ -43,6 +37,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="about_dlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

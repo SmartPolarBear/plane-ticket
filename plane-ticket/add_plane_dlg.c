@@ -5,105 +5,68 @@
 
 #include "document.h"
 
-extern DOCUMENT doc;
+extern document_t doc; // in main.cc
 
-UINT64 hashing(LPWSTR str)
+#define CONTROL_TEXT_TO_BUF(id,buf,buf_len) \
+do \
+{ \
+DWORD len = (WORD)SendDlgItemMessage(hDlg, \
+	id, \
+	EM_LINELENGTH, \
+	(WPARAM)0, \
+	(LPARAM)0); \
+GetDlgItemText(hDlg, id, buf, buf_len); \
+buf[len] = 0; \
+}while(0) \
+
+uint64_t hashing(wchar_t* str)
 {
-	UINT64 Ret = 0;
+	uint64_t ret = 0;
 	for (int i = 0; i < 32; i++)
 	{
 		if (str[i] != 0)
 		{
-			Ret *= 10;
-			Ret += (int)(str[i] - L'0');
+			ret *= 10;
+			ret += (int)(str[i] >= L'0' && str[i] <= '9' ? str[i] - L'0' : str[i] - 'A');
 		}
 	}
-	return Ret;
+	return ret;
 }
 
 BOOL DoOk(HWND hDlg)
 {
-	PLANE p;
+	flight_t f;
 
-	DWORD len = (WORD)SendDlgItemMessage(hDlg,
-		IDC_EDIT_COMPANY,
-		EM_LINELENGTH,
-		(WPARAM)0,
-		(LPARAM)0);
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_ID, f.id, 32);
 
-	SendDlgItemMessage(hDlg,
-		IDC_EDIT_COMPANY,
-		EM_GETLINE,
-		0,
-		p.pszCompany);
-	p.pszCompany[len] = 0;
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_COMPANY, f.company, 32);
 
-	len = (WORD)SendDlgItemMessage(hDlg,
-		IDC_EDIT_ID,
-		EM_LINELENGTH,
-		(WPARAM)0,
-		(LPARAM)0);
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_FROM, f.from, 32);
 
-	SendDlgItemMessage(hDlg,
-		IDC_EDIT_ID,
-		EM_GETLINE,
-		0,
-		p.pszFlightId);
-	p.pszFlightId[len] = 0;
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_FROM, f.to, 32);
 
-	len = (WORD)SendDlgItemMessage(hDlg,
-		IDC_EDIT_FROM,
-		EM_LINELENGTH,
-		(WPARAM)0,
-		(LPARAM)0);
+	wchar_t count_buf[32] = { 0 };
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_COUNT, count_buf, 32);
 
-	SendDlgItemMessage(hDlg,
-		IDC_EDIT_FROM,
-		EM_GETLINE,
-		0,
-		p.pszFrom);
-	p.pszFrom[len] = 0;
-
-	len = (WORD)SendDlgItemMessage(hDlg,
-		IDC_EDIT_TO,
-		EM_LINELENGTH,
-		(WPARAM)0,
-		(LPARAM)0);
-
-	SendDlgItemMessage(hDlg,
-		IDC_EDIT_TO,
-		EM_GETLINE,
-		0,
-		p.pszTo);
-	p.pszTo[len] = 0;
-
-	len = (WORD)SendDlgItemMessage(hDlg,
-		IDC_EDIT_COUNT,
-		EM_LINELENGTH,
-		(WPARAM)0,
-		(LPARAM)0);
-
-	WCHAR pszCount[32] = { 0 };
-	GetDlgItemText(hDlg, IDC_EDIT_COUNT, pszCount, 32);
-	pszCount[len] = 0;
-
-	p.iSold = 0;
-	p.iRemain = 0;
+	f.sold = f.remaining = 0;
 	for (int i = 0; i < 32; i++)
 	{
-		if (pszCount[i] != 0)
+		if (count_buf[i] != 0)
 		{
-			p.iRemain *= 10;
-			p.iRemain += pszCount[i] - L'0';
+			f.remaining *= 10;
+			f.remaining += count_buf[i] - L'0';
 		}
 	}
 
-	p.iId = hashing(p.pszFlightId);
+	f.flight_key = hashing(f.id);
 
-	if (!AddPlane(&doc, p))
+
+	int ret = document_add_flight(&doc, &f);
+	if (ret)
 		return FALSE;
 
-	if (!SaveDocument(&doc))
+	ret = save_document(&doc);
+	if (ret)
 		return FALSE;
 
 	return TRUE;
