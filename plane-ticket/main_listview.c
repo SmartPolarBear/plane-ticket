@@ -1,3 +1,5 @@
+#define  _CRT_SECURE_NO_WARNINGS
+
 #include "main.h"
 
 // Main List View
@@ -17,7 +19,7 @@ struct column_def
 	{L"Company",256},
 	{L"From",128},
 	{L"To",128},
-	{L"Status",128},
+	{L"Status",256},
 };
 
 static inline void set_columns()
@@ -38,6 +40,7 @@ static inline void set_columns()
 
 static inline void main_listview_load(flight_t* f)
 {
+	wchar_t buf[128] = { 0 };
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
 	LvItem.mask = LVIF_TEXT;   // Text Style
@@ -60,8 +63,28 @@ static inline void main_listview_load(flight_t* f)
 	LvItem.pszText = f->to;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
+	if (f->sold == 0)
+	{
+		wcscpy(buf, L"Empty.");
+	}
+	else if (f->remaining == 0)
+	{
+		wcscpy(buf, L"Full.");
+	}
+	else if (f->sold == 0 && f->remaining == 0)
+	{
+		wsprintf(buf, L"%lld sold, %lld avaiable, load factor %.2f.",
+			f->sold,
+			f->remaining,
+			((float)f->sold) / (f->sold + f->remaining));
+	}
+	else
+	{
+		wcscpy(buf, L"Error.");
+	}
+
 	LvItem.iSubItem = 4;
-	LvItem.pszText = L"TODO";
+	LvItem.pszText = buf;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 }
 

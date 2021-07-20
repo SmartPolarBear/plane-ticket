@@ -163,6 +163,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_FLIGHT_ADD:
 			show_add_flight_dialog();
 			break;
+		case IDM_FLIGHT_DELETE:
+			/*wchar_t notify_text[64] = { 0 };
+			wsprintf(L"", notify_text,)*/
+			int msg_id = MessageBox(hWnd, L"Are you sure to delete this flight ?", L"Confirm", MB_ICONQUESTION | MB_YESNO);
+			if (msg_id == IDNO)
+			{
+
+			}
+			break;
+		case IDM_FLIGHT_BOOK:
+			break;
 		case IDM_ABOUT:
 			show_about_dialog();
 			break;
@@ -215,11 +226,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
 					-1, LVNI_FOCUSED | LVNI_SELECTED);
 
-				if (main_list_view_selected < 0)
-					break;
-
 				HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDM_MAIN_LISTVIEW_POPUP));
-				HMENU hPopupMenu = GetSubMenu(hMenu, 0);
+
+				HMENU hPopupMenu;
+
+				if (main_list_view_selected < 0) // no item selected
+				{
+					hPopupMenu = GetSubMenu(hMenu, 1);
+				}
+				else
+				{
+					hPopupMenu = GetSubMenu(hMenu, 0);
+				}
+
 				POINT pt;
 				SetMenuDefaultItem(hPopupMenu, -1, TRUE);
 				GetCursorPos(&pt);
