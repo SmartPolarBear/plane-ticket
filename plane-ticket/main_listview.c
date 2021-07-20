@@ -40,7 +40,7 @@ static inline void main_listview_load(flight_t* f)
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
 	LvItem.mask = LVIF_TEXT;   // Text Style
-	LvItem.cchTextMax = 256; // Max size of txst
+	LvItem.cchTextMax = 256; // Max size of text
 	LvItem.iItem = 0;          // choose item  
 	LvItem.iSubItem = 0;       // Put in first coluom
 	LvItem.pszText = f->id; // Text to display (can be from a char variable) (Items)
@@ -58,7 +58,6 @@ static inline void main_listview_load(flight_t* f)
 	LvItem.iSubItem = 3;
 	LvItem.pszText = f->to;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
-
 
 	LvItem.iSubItem = 4;
 	LvItem.pszText = L"TODO";

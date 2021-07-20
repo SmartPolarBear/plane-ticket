@@ -6,9 +6,6 @@
 
 #include "document.h"
 
-#include "add_plane_dlg.h"
-#include "about_dlg.h"
-
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -137,7 +134,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		MessageBox(hWnd, L"Cannot initialize data.", L"Failure", MB_OK | MB_ICONERROR);
 		return TRUE;
 	}
-	
+
 	load_main_listview();
 
 	return TRUE;
@@ -164,11 +161,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case IDM_FLIGHT_ADD:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDPLANEDLG), hWnd, AddPlaneDialog);
-			load_main_listview();
+			show_add_flight_dialog();
 			break;
 		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutDialog);
+			show_about_dialog();
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
