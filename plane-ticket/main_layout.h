@@ -1,0 +1,7 @@
+#pragma once
+
+#define RIGHT_PANEL_WIDTH (200)
+#define RIGHT_PANEL_MARGIN (4)
+#define RIGHT_PANEL_PADDING (10)
+#define RIGHT_PANEL_BTN_HEIGHT (32)
+

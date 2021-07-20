@@ -16,17 +16,9 @@ HINSTANCE hInst;                                // current instance
 HWND hMainWnd;
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+
 document_t doc;
 
-// Main List View
-HWND hWndMainListView;
-LVCOLUMN LvCol;
-LVITEM LvItem;
-
-// Right Panel
-HWND hWndRightPanel;
-const UINT32 iRightPanelWidth = 200, iRightPanelPaddingLeft = 4, iRightPanelPaddingRight;
-const UINT32 iInnerButtonWidth = 180, iInnerButtonHeight = 40, iInnerButtonPadding = 10;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -107,121 +99,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 
-HWND CreateRightPanel(HWND hwndParent)
-{
-	RECT rcClient;                       // The parent window's client area.
-	GetClientRect(hwndParent, &rcClient);
-
-	HWND hWndGroup = CreateWindow(WC_BUTTON, L"Plane Action",
-		WS_CHILD | WS_VISIBLE | WS_GROUP | BS_GROUPBOX,
-		rcClient.right - iRightPanelWidth - iRightPanelPaddingRight,
-		0,
-		iRightPanelWidth,
-		rcClient.bottom - rcClient.top,
-
-		hwndParent, NULL, hInst, 0);
-
-	return hWndGroup;
-}
-
-void LoadRightPanel()
-{
-	RECT rcClient;
-	GetClientRect(hWndRightPanel, &rcClient);
-
-	HWND hWndButtonAdd = CreateWindow(WC_BUTTON, L"New Plane",
-		WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP | BS_DEFPUSHBUTTON,
-		rcClient.left + iInnerButtonPadding,
-		rcClient.top + iInnerButtonPadding + 20,
-		iInnerButtonWidth,
-		iInnerButtonHeight,
-		hWndRightPanel, NULL, hInst, 0);
-}
 
 
-HWND CreateMainListView(HWND hwndParent)
-{
-
-	RECT rcClient;                       // The parent window's client area.
-	GetClientRect(hwndParent, &rcClient);
-
-	// Create the list-view window in report view with label editing enabled.
-	HWND hWndListView = CreateWindow(WC_LISTVIEW,
-		L"",
-		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS,
-		0,
-		0,
-		rcClient.right - rcClient.left - iRightPanelWidth - iRightPanelPaddingLeft - iRightPanelPaddingRight,
-		rcClient.bottom - rcClient.top,
-		hwndParent,
-		(HMENU)IDM_MAIN_LISTVIEW,
-		hInst,
-		NULL);
-
-	return hWndListView;
-}
-
-void SetMainListViewColumns()
-{
-	memset(&LvCol, 0, sizeof(LvCol));
-	LvCol.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	LvCol.cx = 128;
-
-	SendMessage(hWndMainListView, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
-
-	UINT16* Cols[] = { L"Flight ID" , L"Company", L"From", L"To", L"Status" };
-	for (int i = 0; i < sizeof(Cols) / sizeof(Cols[0]); i++)
-	{
-		LvCol.pszText = Cols[i];
-		SendMessage(hWndMainListView, LVM_INSERTCOLUMN, i, (LPARAM)&LvCol);
-	}
-
-}
-
-void MainListViewLoadFlight(flight_t *f)
-{
-	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
-
-	LvItem.mask = LVIF_TEXT;   // Text Style
-	LvItem.cchTextMax = 256; // Max size of txst
-	LvItem.iItem = 0;          // choose item  
-	LvItem.iSubItem = 0;       // Put in first coluom
-	LvItem.pszText = f->id; // Text to display (can be from a char variable) (Items)
-
-	SendMessage(hWndMainListView, LVM_INSERTITEM, 0, (LPARAM)&LvItem); // Send info to the Listview
-
-	LvItem.iSubItem = 1;
-	LvItem.pszText = f->company;
-	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
-
-	LvItem.iSubItem = 2;
-	LvItem.pszText = f->from;
-	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
-
-	LvItem.iSubItem = 3;
-	LvItem.pszText = f->to;
-	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
-
-
-	LvItem.iSubItem = 4;
-	LvItem.pszText = L"TODO";
-	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
-}
-
-void LoadMainListView()
-{
-	if (!doc.flights)
-	{
-		return;
-	}
-
-	ListView_DeleteAllItems(hWndMainListView);
-
-	for (int i = 0; i < doc.header->flight_count; i++)
-	{
-		MainListViewLoadFlight(&doc.flights[i]);
-	}
-}
 
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
@@ -247,19 +126,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	hWndRightPanel = CreateRightPanel(hWnd);
-	if (hWndRightPanel == NULL)
-	{
-		return FALSE;
-	}
-	LoadRightPanel();
-
-	hWndMainListView = CreateMainListView(hWnd);
-	if (hWndMainListView == NULL)
-	{
-		return FALSE;
-	}
-	SetMainListViewColumns();
+	make_main_layout();
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -271,7 +138,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return TRUE;
 	}
 	
-	LoadMainListView();
+	load_main_listview();
 
 	return TRUE;
 }
@@ -298,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case IDM_FLIGHT_ADD:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDPLANEDLG), hWnd, AddPlaneDialog);
-			LoadMainListView();
+			load_main_listview();
 			break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutDialog);
