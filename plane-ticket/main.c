@@ -196,6 +196,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		PostQuitMessage(0);
 		break;
+	case WM_RBUTTONUP:
+		main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
+			-1, LVNI_FOCUSED);
+		break;
+	case WM_NOTIFY:
+		switch (LOWORD(wParam))
+		{
+		case IDC_MAINLISTVIEW:
+			switch (((LPNMHDR)lParam)->code)
+			{
+			case NM_CLICK:
+				main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+				break;
+
+			case NM_RCLICK:
+				main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+
+				if (main_list_view_selected < 0)
+					break;
+
+				HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDM_MAIN_LISTVIEW_POPUP));
+				HMENU hPopupMenu = GetSubMenu(hMenu, 0);
+				POINT pt;
+				SetMenuDefaultItem(hPopupMenu, -1, TRUE);
+				GetCursorPos(&pt);
+				SetForegroundWindow(hWnd);
+				TrackPopupMenu(hPopupMenu,
+					TPM_LEFTALIGN, pt.x, pt.y, 0, hWnd, NULL);
+				SetForegroundWindow(hWnd);
+				DestroyMenu(hPopupMenu);
+				DestroyMenu(hMenu);
+
+				break;
+			}
+			break;
+		}
+		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

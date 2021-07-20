@@ -14,12 +14,12 @@
 #define IDC_PLANETICKET                 109
 #define IDR_MAINFRAME                   128
 #define IDM_MAIN_LISTVIEW               129
+#define IDM_MAIN_LISTVIEW_POPUP         129
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
 #define IDC_EDIT_TO                     1006
 #define IDC_EDIT_COUNT                  1007
-#define IDC_EDIT2                       1008
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -30,6 +30,8 @@
 #define ID_PLANE_ADD                    32778
 #define ID_FLIGHT_ADD                   32781
 #define IDM_FLIGHT_ADD                  32782
+#define ID_POPUP_VIEWTICKETS            32785
+#define ID_POPUP_DELETE                 32786
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -38,7 +40,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32783
+#define _APS_NEXT_COMMAND_VALUE         32787
 #define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

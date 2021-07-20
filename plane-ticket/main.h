@@ -9,6 +9,8 @@
 #include "control_id.h"
 
 extern HWND hWndMainListView;
+extern INT64 main_list_view_selected;
+
 extern HWND hWndRightPanel;
 
 extern HWND hMainWnd;

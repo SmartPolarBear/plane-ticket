@@ -2,6 +2,7 @@
 
 // Main List View
 HWND hWndMainListView;
+INT64 main_list_view_selected = -1;
 
 LVCOLUMN LvCol;
 LVITEM LvItem;
@@ -76,7 +77,7 @@ void create_main_listview(HWND hwndParent, int x, int y, int w, int h)
 		w,
 		h,
 		hwndParent,
-		(HMENU)IDM_MAIN_LISTVIEW,
+		(HMENU)IDC_MAINLISTVIEW,
 		hInst,
 		NULL);
 
