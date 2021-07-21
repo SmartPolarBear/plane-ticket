@@ -71,7 +71,7 @@
     <ClCompile Include="main_layout.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main_right_panel.cpp">
+    <ClCompile Include="main_right_panel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main_dialogs.c">

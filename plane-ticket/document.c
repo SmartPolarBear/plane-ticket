@@ -9,6 +9,18 @@
 
 const char* main_db_name = "main_db";
 
+static inline int flight_apply_query(const document_t* doc, const flight_t* f)
+{
+	if (!f)return FALSE;
+
+	if (f->flags & FFLAG_DELETE)return FALSE;
+
+	int result = TRUE;
+
+
+	return result;
+}
+
 int load_document(document_t* doc)
 {
 	memset(doc, 0, sizeof(document_t));
@@ -53,9 +65,7 @@ int load_document(document_t* doc)
 
 	fclose(main_db);
 
-	doc->result = doc->flights;
-
-	return ERROR_SUCCESS;
+	return document_apply_query(doc);
 }
 
 int save_document(document_t* doc)
@@ -80,6 +90,43 @@ int save_document(document_t* doc)
 
 	fclose(main_db);
 	return ERROR_SUCCESS;
+}
+
+
+int document_apply_query(document_t* doc)
+{
+	// count all valid item
+	size_t total = 0;
+	for (int i = 0; i < doc->header->flight_count; i++)
+	{
+		if (flight_apply_query(doc, &doc->flights[i]))
+		{
+			total++;
+		}
+	}
+
+	if (doc->result)
+	{
+		free(doc->result);
+	}
+
+	doc->result = malloc(sizeof(flight_t) * total);
+	if (!doc->result)
+	{
+		return ERROR_MEMORY_ALLOC;
+	}
+
+	for (int i = 0, idx = 0; i < doc->header->flight_count && idx < total; i++)
+	{
+		if (flight_apply_query(doc, &doc->flights[i]))
+		{
+			doc->result[idx++] = doc->flights[i];
+		}
+	}
+
+	doc->result_count = total;
+
+	return 0;
 }
 
 int document_add_flight(document_t* doc, flight_t* flight)

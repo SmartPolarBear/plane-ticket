@@ -38,6 +38,7 @@
 #define IDM_FLIGHT_DELETE               32790
 #define IDM_FLIGHT_VIEW_TICKETS         32791
 #define IDM_FLIGHT_BOOK                 32792
+#define ID_FLIGHT_CLEANALL              32793
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -46,7 +47,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32793
+#define _APS_NEXT_COMMAND_VALUE         32794
 #define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

@@ -22,6 +22,7 @@ void make_main_layout();
 
 void create_main_listview(HWND hwndParent, int x, int y, int w, int h);
 void load_main_listview();
+void main_list_view_delete_selected_item();
 
 void create_right_panel(HWND hwndParent, int x, int y, int w, int h);
 

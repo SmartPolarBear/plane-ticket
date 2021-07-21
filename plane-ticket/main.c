@@ -164,13 +164,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			show_add_flight_dialog();
 			break;
 		case IDM_FLIGHT_DELETE:
-			/*wchar_t notify_text[64] = { 0 };
-			wsprintf(L"", notify_text,)*/
-			int msg_id = MessageBox(hWnd, L"Are you sure to delete this flight ?", L"Confirm", MB_ICONQUESTION | MB_YESNO);
-			if (msg_id == IDNO)
-			{
-
-			}
+			main_list_view_delete_selected_item();
 			break;
 		case IDM_FLIGHT_BOOK:
 			break;
@@ -240,12 +234,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 
 				POINT pt;
-				SetMenuDefaultItem(hPopupMenu, -1, TRUE);
 				GetCursorPos(&pt);
+
+
+				SetMenuDefaultItem(hPopupMenu, -1, TRUE);
+
 				SetForegroundWindow(hWnd);
 				TrackPopupMenu(hPopupMenu,
 					TPM_LEFTALIGN, pt.x, pt.y, 0, hWnd, NULL);
 				SetForegroundWindow(hWnd);
+
 				DestroyMenu(hPopupMenu);
 				DestroyMenu(hMenu);
 

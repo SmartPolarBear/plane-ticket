@@ -61,10 +61,13 @@ typedef struct document
 	}sort;
 
 	flight_t* result;
+	size_t result_count;
 }document_t;
 
 int load_document(document_t* doc);
 int save_document(document_t* doc);
+
+int document_apply_query(document_t* doc);
 
 int document_add_flight(document_t* doc, flight_t* flight);
 void document_remove_flight(document_t* doc, flight_t* flight);

@@ -38,14 +38,14 @@ static inline void set_columns()
 
 }
 
-static inline void main_listview_load(flight_t* f)
+static inline void main_listview_add(flight_t* f, int idx)
 {
 	wchar_t buf[128] = { 0 };
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
 	LvItem.mask = LVIF_TEXT;   // Text Style
 	LvItem.cchTextMax = 256; // Max size of text
-	LvItem.iItem = 0;          // choose item  
+	LvItem.iItem = idx;          // choose item  
 	LvItem.iSubItem = 0;       // Put in first coluom
 	LvItem.pszText = f->id; // Text to display (can be from a char variable) (Items)
 
@@ -123,8 +123,40 @@ void load_main_listview()
 
 	ListView_DeleteAllItems(hWndMainListView);
 
-	for (int i = 0; i < doc.header->flight_count; i++)
+	document_apply_query(&doc);
+	for (int i = 0; i < doc.result_count; i++)
 	{
-		main_listview_load(&doc.flights[i]);
+		main_listview_add(&doc.result[i], i);
 	}
+}
+
+void main_list_view_delete_selected_item()
+{
+	if (main_list_view_selected < 0)return;
+
+	wchar_t* notify_text = calloc(64, sizeof(wchar_t));
+	if (!notify_text)
+	{
+		MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
+		exit(1);
+	}
+
+	flight_t* selected = &doc.result[main_list_view_selected];
+
+
+	wsprintf(notify_text, L"Are you sure to delete flight %s?", selected->id);
+	int msg_id = MessageBox(hMainWnd, notify_text, L"Confirm", MB_ICONQUESTION | MB_YESNO);
+	if (msg_id == IDNO)
+	{
+		return;
+	}
+
+	document_remove_flight(&doc, selected);
+	save_document(&doc);
+
+	main_list_view_selected = -1;
+	free(notify_text);
+
+	ListView_DeleteItem(hWndMainListView, main_list_view_selected);
+
 }

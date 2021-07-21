@@ -35,7 +35,7 @@ int do_add_plane(HWND hDlg)
 
 	CONTROL_TEXT_TO_BUF(IDC_EDIT_FROM, f.from, 32);
 
-	CONTROL_TEXT_TO_BUF(IDC_EDIT_FROM, f.to, 32);
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_TO, f.to, 32);
 
 
 	wchar_t count_buf[32] = { 0 },*end=NULL;
@@ -45,7 +45,6 @@ int do_add_plane(HWND hDlg)
 	f.remaining = wcstol(count_buf, &end, 10);
 
 	f.flight_key = hashing(f.id);
-
 
 	int ret = document_add_flight(&doc, &f);
 	if (ret)
