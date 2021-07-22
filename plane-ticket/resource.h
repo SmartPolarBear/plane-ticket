@@ -16,16 +16,30 @@
 #define IDM_MAIN_LISTVIEW               129
 #define IDM_MAIN_LISTVIEW_POPUP         129
 #define IDD_TICKET_DIALOG               130
+#define IDD_DIALOG_BOOKING              131
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
 #define IDC_EDIT_TO                     1006
 #define IDC_EDIT_COUNT                  1007
-#define IDC_BUTTON1                     1011
+#define IDC_BUTTON_BOOK                 1011
 #define IDC_BUTTON2                     1012
 #define IDC_BUTTON3                     1013
-#define IDC_LIST                        1015
 #define IDC_LISTTICKET                  1015
+#define IDC_EDIT_FLIGHT_ID              1017
+#define IDC_EDIT3                       1018
+#define IDC_COMBO_SEAT                  1020
+#define IDC_EDIT4                       1022
+#define IDC_EDIT5                       1023
+#define IDC_EDIT6                       1024
+#define IDC_EDIT_NOTES                  1025
+#define IDC_CHECK2                      1026
+#define IDC_CHECK3                      1028
+#define IDC_CLASS_COMBO                 1029
+#define IDC_RADIO_FNORMAL               1030
+#define IDC_RADIO_FMUSLIM               1031
+#define IDC_RADIO_FVEGE                 1032
+#define IDC_STATIC_NOTES_LENGTH         1033
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -52,9 +66,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

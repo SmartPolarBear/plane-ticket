@@ -8,12 +8,38 @@
 
 enum
 {
-	FFLAG_DELETE = 0b1
+	FFLAG_DELETE = 0b1,
+
+	FFLAG_DELAY = 0b10,
+	FFLAG_CANCELED = 0b100,
+
+	FFLAG_CLASS_HAS_FIRST = 0b1000,
+	FFLAG_CLASS_HAS_ECONOMY = 0b10000,
+	FFLAG_CLASS_HAS_BUSINESS = 0b100000,
 };
 
 enum
 {
-	TFLAG_DELETE = 0b1
+	TFLAG_DELETE = 0b1,
+	TFLAG_UNACCOMPANIED_CHILDREN = 0b10,
+	TFLAG_MEDICAL_NEEDS = 0b100,
+
+	TFLAG_CLASS_FIRST = 0b1000,
+	TFLAG_CLASS_ECONOMY = 0b10000,
+	TFLAG_CLASS_BUSINESS = 0b1000000,
+
+	TFLAG_FOOD_MUSLIM = 0b10000000,
+	TFLAG_FOOD_VEGETARIAN = 0b100000000
+};
+
+enum
+{
+	SEAT_A = (1 << 0),
+	SAET_B = (1 << 1),
+	SEAT_C = (1 << 2),
+	SEAT_H = (1 << 3),
+	SEAT_J = (1 << 4),
+	SEAT_K = (1 << 5),
 };
 
 typedef struct flight
@@ -22,8 +48,13 @@ typedef struct flight
 	wchar_t company[32];
 	wchar_t from[32];
 	wchar_t to[32];
+
 	uint64_t sold;
 	uint64_t remaining;
+
+	uint64_t takeof_timestamp;
+
+	uint8_t ticket_bitmap[256];
 
 	uint64_t flight_key;
 	uint64_t flags;
@@ -34,6 +65,7 @@ typedef struct ticket
 	wchar_t ticket_id[32];
 	wchar_t owner[32];
 	wchar_t owner_id[32];
+	wchar_t notes[256];
 
 	uint64_t flight_key;
 	uint64_t ticket_key;

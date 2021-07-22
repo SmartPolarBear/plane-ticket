@@ -51,6 +51,9 @@
     <ClInclude Include="ticket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ticket_booking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ticket_listview.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ticket_booking.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,7 +27,7 @@ buf[len] = 0; \
 int do_add_plane(HWND hDlg)
 {
 	flight_t f;
-
+	memset(&f, 0, sizeof(f));
 
 	CONTROL_TEXT_TO_BUF(IDC_EDIT_ID, f.id, 32);
 
@@ -45,6 +45,10 @@ int do_add_plane(HWND hDlg)
 	f.remaining = wcstol(count_buf, &end, 10);
 
 	f.flight_key = hashing(f.id);
+
+	f.flags |= FFLAG_CLASS_HAS_BUSINESS;
+	f.flags |= FFLAG_CLASS_HAS_FIRST;
+	f.flags |= FFLAG_CLASS_HAS_ECONOMY;
 
 	int ret = document_add_flight(&doc, &f);
 	if (ret)

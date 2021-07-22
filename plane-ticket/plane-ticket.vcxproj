@@ -163,6 +163,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ticket.h" />
+    <ClInclude Include="ticket_booking.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="about_dlg.c" />
@@ -180,6 +181,7 @@
     <ClCompile Include="main_listview.c" />
     <ClCompile Include="main_right_panel.c" />
     <ClCompile Include="ticket.c" />
+    <ClCompile Include="ticket_booking.c" />
     <ClCompile Include="ticket_listview.c" />
   </ItemGroup>
   <ItemGroup>
