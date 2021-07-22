@@ -351,6 +351,9 @@ int document_flight_refound_ticket(flight_info_t* info, ticket_t* ticket)
 		return 1;
 	}
 
+	info->parent->sold--;
+	info->parent->remaining++;
+
 	return 0;
 }
 
