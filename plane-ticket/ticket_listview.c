@@ -52,7 +52,7 @@ static inline void ticket_listview_add(HWND hDlg, ticket_t* t, int idx)
 
 	SendMessage(h_listview, LVM_INSERTITEM, 0, (LPARAM)&LvItem); // Send info to the Listview
 
-	wsprintf(buf, L"%d", t->id);
+	swprintf(buf, sizeof(buf) / sizeof(*buf), L"%lld", t->id);
 	LvItem.iSubItem = 1;
 	LvItem.pszText = buf;
 	SendMessage(h_listview, LVM_SETITEM, 0, (LPARAM)&LvItem);

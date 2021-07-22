@@ -140,12 +140,12 @@ void document_remove_flight(flight_t* flight);
 void destroy_document(document_t* doc);
 
 int document_get_flight_info(flight_t* flight, flight_info_t* out_info);
-int documeent_flight_info_save(flight_info_t* out_info);
+int documeent_flight_info_save(document_t* doc, flight_info_t* out_info);
 
 int document_flight_apply_query(flight_info_t* info);
 
 int  document_flight_book_ticket(flight_info_t* info, ticket_t* ticket);
-void document_flight_refound_ticket(ticket_t* ticket);
+int document_flight_refound_ticket(flight_info_t* info, ticket_t* ticket);
 
 void document_destroy_flight_info(flight_info_t* info);
 

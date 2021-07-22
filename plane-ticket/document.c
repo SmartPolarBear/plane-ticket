@@ -286,7 +286,10 @@ int document_flight_book_ticket(flight_info_t* info, ticket_t* ticket)
 
 	int row = 0;
 	wchar_t col = 0;
-	swscanf(ticket->seat, L"%d%c", &row, &col);
+	if (swscanf(ticket->seat, L"%d%c", &row, &col) != 2)
+	{
+		return 1;
+	}
 	switch (col)
 	{
 	case L'A':
@@ -314,9 +317,41 @@ int document_flight_book_ticket(flight_info_t* info, ticket_t* ticket)
 	return 0;
 }
 
-void document_flight_refound_ticket(ticket_t* ticket)
+int document_flight_refound_ticket(flight_info_t* info, ticket_t* ticket)
 {
 	ticket->flags |= TFLAG_DELETE;
+
+	int row = 0;
+	wchar_t col = 0;
+	if (swscanf(ticket->seat, L"%d%c", &row, &col) != 2)
+	{
+		return 1;
+	}
+	switch (col)
+	{
+	case L'A':
+		info->parent->ticket_bitmap[row] &= ~(1 << 0);
+		break;
+	case L'B':
+		info->parent->ticket_bitmap[row] &= ~(1 << 1);
+		break;
+	case L'C':
+		info->parent->ticket_bitmap[row] &= ~(1 << 2);
+		break;
+	case L'H':
+		info->parent->ticket_bitmap[row] &= ~(1 << 3);
+		break;
+	case L'J':
+		info->parent->ticket_bitmap[row] &= ~(1 << 4);
+		break;
+	case L'K':
+		info->parent->ticket_bitmap[row] &= ~(1 << 5);
+		break;
+	default:
+		return 1;
+	}
+
+	return 0;
 }
 
 void document_destroy_flight_info(flight_info_t* info)
