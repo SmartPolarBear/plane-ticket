@@ -11,6 +11,72 @@
 
 flight_info_t* target_flight = NULL;
 
+int ticket_listview_selected = -1;
+
+static inline void update_controls(HWND hDlg)
+{
+	Button_Enable(GetDlgItem(hDlg, IDC_BUTTON_REFOUND), (ticket_listview_selected >= 0));
+
+}
+
+static inline void ticket_book(HWND hDlg)
+{
+	if (show_booking_dialog() == IDOK)
+	{
+		load_ticket_listview(hDlg);
+	}
+}
+
+static inline void ticket_refound(HWND hDlg)
+{
+	if (ticket_listview_selected < 0)return;
+
+	wchar_t* notify_text = calloc(256, sizeof(wchar_t));
+	if (!notify_text)
+	{
+		MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
+		exit(1);
+	}
+
+	ticket_t* selected = target_flight->result[ticket_listview_selected];
+
+
+	swprintf(notify_text, 256, L"Are you sure to refound the ticket?\nID: %lld\nName:%s\nID:%s\n",
+		selected->id,
+		selected->owner,
+		selected->owner_id);
+
+	int msg_id = MessageBox(hMainWnd, notify_text, L"Confirm", MB_ICONQUESTION | MB_YESNO);
+	if (msg_id == IDNO)
+	{
+		free(notify_text);
+		return;
+	}
+	free(notify_text);
+
+
+	int ret = document_flight_refound_ticket(target_flight, selected);
+	if (ret)
+	{
+		MessageBox(hDlg, L"Cannot refound ticket", L"Failure", MB_OK | MB_ICONERROR);
+		load_ticket_listview(hDlg);
+		return;
+	}
+
+	ret = documeent_flight_info_save(&doc, target_flight);
+	if (ret)
+	{
+		MessageBox(hDlg, L"Cannot save flight information", L"Failure", MB_OK | MB_ICONERROR);
+		load_ticket_listview(hDlg);
+	}
+
+	ListView_DeleteItem(hWndMainListView, main_list_view_selected);
+
+	main_list_view_selected = -1;
+
+	load_ticket_listview(hDlg);
+}
+
 INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -52,12 +118,13 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		switch (LOWORD(wParam))
 		{
 		case IDC_BUTTON_BOOK:
-			if (show_booking_dialog() == IDOK)
-			{
-				load_ticket_listview(hDlg);
-			}
-
+			ticket_book(hDlg);
 			break;
+
+		case IDC_BUTTON_REFOUND:
+			ticket_refound(hDlg);
+			break;
+
 		default:
 			if (LOWORD(wParam) == IDOK)
 			{
@@ -69,6 +136,32 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 				EndDialog(hDlg, LOWORD(wParam));
 				return (INT_PTR)TRUE;
 			}
+			break;
+		}
+		break;
+
+	case WM_NOTIFY:
+
+		switch (LOWORD(wParam))
+		{
+		case IDC_LISTTICKET:
+			HWND h_ticket_listview = GetDlgItem(hDlg, IDC_LISTTICKET);
+			switch (((LPNMHDR)lParam)->code)
+			{
+			case NM_CLICK:
+				ticket_listview_selected = SendMessage(h_ticket_listview, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+				break;
+			case NM_DBLCLK:
+				ticket_listview_selected = SendMessage(h_ticket_listview, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+				break;
+			case NM_RCLICK:
+				ticket_listview_selected = SendMessage(h_ticket_listview, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+				break;
+			}
+			update_controls(hDlg);
 			break;
 		}
 		break;

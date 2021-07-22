@@ -113,6 +113,11 @@ static inline void load_seat_info(HWND hDlg)
 }
 
 
+static inline void update_button_status()
+{
+
+}
+
 static inline int do_book_flight(HWND hDlg)
 {
 	ticket_t t;

@@ -206,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_RBUTTONUP:
 		main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
-			-1, LVNI_FOCUSED);
+			-1, LVNI_FOCUSED | LVNI_SELECTED);
 		break;
 	case WM_NOTIFY:
 		switch (LOWORD(wParam))

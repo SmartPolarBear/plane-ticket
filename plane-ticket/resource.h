@@ -24,6 +24,7 @@
 #define IDC_EDIT_COUNT                  1007
 #define IDC_BUTTON_BOOK                 1011
 #define IDC_BUTTON2                     1012
+#define IDC_BUTTON_REFOUND              1012
 #define IDC_BUTTON3                     1013
 #define IDC_LISTTICKET                  1015
 #define IDC_EDIT_FLIGHT_ID              1017
@@ -33,7 +34,6 @@
 #define IDC_EDIT_PHONE                  1024
 #define IDC_EDIT_NOTES                  1025
 #define IDC_UNACCOMPANIED_CHILDREN      1026
-#define IDC_CHECK3                      1028
 #define IDC_CHECK_MEDICAL               1028
 #define IDC_CLASS_COMBO                 1029
 #define IDC_RADIO_FNORMAL               1030
