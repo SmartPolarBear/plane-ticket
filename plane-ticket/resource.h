@@ -23,7 +23,6 @@
 #define IDC_EDIT_TO                     1006
 #define IDC_EDIT_COUNT                  1007
 #define IDC_BUTTON_BOOK                 1011
-#define IDC_BUTTON2                     1012
 #define IDC_BUTTON_REFOUND              1012
 #define IDC_BUTTON3                     1013
 #define IDC_LISTTICKET                  1015
@@ -40,6 +39,7 @@
 #define IDC_RADIO_FMUSLIM               1031
 #define IDC_RADIO_FVEGE                 1032
 #define IDC_STATIC_NOTES_LENGTH         1033
+#define IDC_BUTTON1                     1034
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -59,6 +59,7 @@
 #define IDM_FLIGHT_VIEW_TICKETS         32791
 #define IDM_FLIGHT_BOOK                 32792
 #define ID_FLIGHT_CLEANALL              32793
+#define ID_SELECTED_FINDSEATS           32794
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -67,8 +68,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        132
-#define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

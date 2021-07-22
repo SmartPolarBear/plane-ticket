@@ -1,4 +1,6 @@
 #pragma once
 #include "framework.h"
 
-WPARAM show_booking_dialog();
+#include "document.h"
+
+WPARAM show_booking_dialog(flight_info_t *target);

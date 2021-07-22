@@ -170,6 +170,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			main_list_view_delete_selected_item();
 			break;
 		case IDM_FLIGHT_BOOK:
+			flight_info_t* info = malloc(sizeof(flight_info_t));
+
+			if (!info)
+			{
+				MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
+				exit(1);
+			}
+
+			int ret = document_get_flight_info(doc.result[main_list_view_selected], info);
+			if (ret)
+			{
+				MessageBox(hMainWnd, L"Cannot load flight data!", L"Failure", MB_OK | MB_ICONERROR);
+				break;
+			}
+
+			if (show_booking_dialog(info) == IDOK)
+			{
+				load_main_listview();
+			}
 			break;
 		case IDM_ABOUT:
 			show_about_dialog();

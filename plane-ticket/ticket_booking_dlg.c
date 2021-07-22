@@ -252,7 +252,8 @@ INT_PTR CALLBACK TicketBookingWndProc(HWND hDlg, UINT message, WPARAM wParam, LP
 }
 
 
-WPARAM show_booking_dialog()
+WPARAM show_booking_dialog(flight_info_t* target)
 {
+	target_flight = target;
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_BOOKING), hMainWnd, TicketBookingWndProc);
 }

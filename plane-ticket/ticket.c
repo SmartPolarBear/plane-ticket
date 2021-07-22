@@ -21,7 +21,7 @@ static inline void update_controls(HWND hDlg)
 
 static inline void ticket_book(HWND hDlg)
 {
-	if (show_booking_dialog() == IDOK)
+	if (show_booking_dialog(target_flight) == IDOK)
 	{
 		load_ticket_listview(hDlg);
 	}
@@ -97,7 +97,7 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		SetWindowText(hDlg, title_buf);
 		free(title_buf);
 
-		target_flight = malloc(sizeof(flight_t));
+		target_flight = malloc(sizeof(flight_info_t));
 		if (!target_flight)
 		{
 			MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
