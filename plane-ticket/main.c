@@ -160,6 +160,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Parse the menu selections:
 		switch (wmId)
 		{
+		case IDM_FLIGHT_VIEW_TICKETS:
+			show_ticket_details();
+			break;
 		case IDM_FLIGHT_ADD:
 			show_add_flight_dialog();
 			break;

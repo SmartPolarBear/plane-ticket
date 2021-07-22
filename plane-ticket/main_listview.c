@@ -9,7 +9,7 @@ INT64 main_list_view_selected = -1;
 LVCOLUMN LvCol;
 LVITEM LvItem;
 
-struct column_def
+static struct column_def
 {
 	wchar_t* text;
 	int width;
