@@ -284,6 +284,32 @@ int document_flight_book_ticket(flight_info_t* info, ticket_t* ticket)
 	info->parent->sold++;
 	info->parent->remaining--;
 
+	int row = 0;
+	wchar_t col = 0;
+	swscanf(ticket->seat, L"%d%c", &row, &col);
+	switch (col)
+	{
+	case L'A':
+		info->parent->ticket_bitmap[row] |= (1 << 0);
+		break;
+	case L'B':
+		info->parent->ticket_bitmap[row] |= (1 << 1);
+		break;
+	case L'C':
+		info->parent->ticket_bitmap[row] |= (1 << 2);
+		break;
+	case L'H':
+		info->parent->ticket_bitmap[row] |= (1 << 3);
+		break;
+	case L'J':
+		info->parent->ticket_bitmap[row] |= (1 << 4);
+		break;
+	case L'K':
+		info->parent->ticket_bitmap[row] |= (1 << 5);
+		break;
+	default:
+		return 1;
+	}
 
 	return 0;
 }
