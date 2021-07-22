@@ -36,6 +36,8 @@ typedef struct ticket
 	wchar_t owner_id[32];
 
 	uint64_t flight_key;
+	uint64_t ticket_key;
+
 	uint64_t flags;
 }ticket_t;
 
@@ -46,6 +48,8 @@ typedef struct flight_header
 
 typedef struct flight_info
 {
+	flight_t* parent;
+
 	flight_header_t* header;
 	ticket_t* tickets;
 
@@ -85,7 +89,7 @@ typedef struct document
 		int is_sorted;
 	}sort;
 
-	flight_t* result;
+	flight_t** result;
 	size_t result_count;
 }document_t;
 
@@ -96,9 +100,20 @@ int save_document(document_t* doc);
 int document_apply_query(document_t* doc);
 
 int document_add_flight(document_t* doc, flight_t* flight);
-void document_remove_flight(document_t* doc, flight_t* flight);
-
-int document_get_flight_info(flight_t* flight, flight_info_t* out_info);
-void document_destroy_flight_info(flight_info_t* flight);
+void document_remove_flight(flight_t* flight);
 
 void destroy_document(document_t* doc);
+
+int document_get_flight_info(flight_t* flight, flight_info_t* out_info);
+int documeent_flight_info_save(flight_info_t* out_info);
+
+int document_flight_apply_query(flight_info_t* info);
+
+int  document_flight_book_ticket(flight_info_t* info, ticket_t* ticket);
+void document_flight_refound_ticket(ticket_t* ticket);
+
+void document_destroy_flight_info(flight_info_t* info);
+
+
+
+

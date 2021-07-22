@@ -126,7 +126,7 @@ void load_main_listview()
 	document_apply_query(&doc);
 	for (int i = 0; i < doc.result_count; i++)
 	{
-		main_listview_add(&doc.result[i], i);
+		main_listview_add(doc.result[i], i);
 	}
 }
 
@@ -141,22 +141,24 @@ void main_list_view_delete_selected_item()
 		exit(1);
 	}
 
-	flight_t* selected = &doc.result[main_list_view_selected];
+	flight_t* selected = doc.result[main_list_view_selected];
 
 
 	wsprintf(notify_text, L"Are you sure to delete flight %s?", selected->id);
 	int msg_id = MessageBox(hMainWnd, notify_text, L"Confirm", MB_ICONQUESTION | MB_YESNO);
 	if (msg_id == IDNO)
 	{
+		free(notify_text);
 		return;
 	}
-
-	document_remove_flight(&doc, selected);
-	save_document(&doc);
-
-	main_list_view_selected = -1;
 	free(notify_text);
 
+
+	document_remove_flight(selected);
+	save_document(&doc);
+
 	ListView_DeleteItem(hWndMainListView, main_list_view_selected);
+
+	main_list_view_selected = -1;
 
 }

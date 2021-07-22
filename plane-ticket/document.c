@@ -9,7 +9,7 @@
 
 const char* main_db_name = "main_db";
 
-static inline int flight_apply_query(const document_t* doc, const flight_t* f)
+static inline int document_item_apply_query(const document_t* doc, const flight_t* f)
 {
 	if (!f)return FALSE;
 
@@ -17,6 +17,17 @@ static inline int flight_apply_query(const document_t* doc, const flight_t* f)
 
 	int result = TRUE;
 
+
+	return result;
+}
+
+static inline int flight_item_apply_query(const flight_info_t* info, const ticket_t* t)
+{
+	if (!t)return FALSE;
+
+	if (t->flags & TFLAG_DELETE)return FALSE;
+
+	int result = TRUE;
 
 	return result;
 }
@@ -99,7 +110,7 @@ int document_apply_query(document_t* doc)
 	size_t total = 0;
 	for (int i = 0; i < doc->header->flight_count; i++)
 	{
-		if (flight_apply_query(doc, &doc->flights[i]))
+		if (document_item_apply_query(doc, &doc->flights[i]))
 		{
 			total++;
 		}
@@ -110,7 +121,7 @@ int document_apply_query(document_t* doc)
 		free(doc->result);
 	}
 
-	doc->result = calloc(total,sizeof(flight_t));
+	doc->result = calloc(total, sizeof(flight_t*));
 	if (!doc->result)
 	{
 		return ERROR_MEMORY_ALLOC;
@@ -118,9 +129,9 @@ int document_apply_query(document_t* doc)
 
 	for (int i = 0, idx = 0; i < doc->header->flight_count && idx < total; i++)
 	{
-		if (flight_apply_query(doc, &doc->flights[i]))
+		if (document_item_apply_query(doc, &doc->flights[i]))
 		{
-			doc->result[idx++] = doc->flights[i];
+			doc->result[idx++] = &doc->flights[i];
 		}
 	}
 
@@ -144,20 +155,15 @@ int document_add_flight(document_t* doc, flight_t* flight)
 	return 0;
 }
 
-void document_remove_flight(document_t* doc, flight_t* flight)
+void document_remove_flight(flight_t* flight)
 {
-	for (int i = 0; i < doc->header->flight_count; i++)
-	{
-		if (doc->flights[doc->header->flight_count - 1].flight_key == flight->flight_key)
-		{
-			doc->flights[doc->header->flight_count - 1].flags |= FFLAG_DELETE;
-		}
-	}
+	flight->flags |= FFLAG_DELETE;
 }
 
 int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 {
 	memset(out_info, 0, sizeof(flight_info_t));
+	out_info->parent = flight;
 
 	out_info->header = (flight_header_t*)malloc(sizeof(flight_header_t));
 	if (!out_info->header)
@@ -199,6 +205,87 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 
 	fclose(flight_db);
 
+}
+
+int documeent_flight_info_save(flight_info_t* info)
+{
+	FILE* db = fopen(info->parent->id, "wb");
+	if (!db)
+	{
+		return ERROR_RWFILE;
+	}
+
+	if (fwrite(info->header, sizeof(flight_header_t), 1, db) != 1)
+	{
+		fclose(db);
+		return ERROR_RWFILE;
+	}
+
+	if (fwrite(info->tickets, sizeof(ticket_t), info->header->ticket_count, db) != info->header->ticket_count)
+	{
+		fclose(db);
+		return ERROR_RWFILE;
+	}
+
+	fclose(db);
+	return ERROR_SUCCESS;
+}
+
+int document_flight_apply_query(flight_info_t* info)
+{
+	// count all valid item
+	size_t total = 0;
+	for (int i = 0; i < info->header->ticket_count; i++)
+	{
+		if (flight_item_apply_query(info, &info->tickets[i]))
+		{
+			total++;
+		}
+	}
+
+	if (info->result)
+	{
+		free(info->result);
+	}
+
+	info->result = calloc(total, sizeof(ticket_t));
+	if (!info->result)
+	{
+		return ERROR_MEMORY_ALLOC;
+	}
+
+	for (int i = 0, idx = 0; i < info->header->ticket_count && idx < total; i++)
+	{
+		if (flight_item_apply_query(info, &info->tickets[i]))
+		{
+			info->result[idx++] = info->tickets[i];
+		}
+	}
+
+	info->result_count = total;
+
+	return 0;
+}
+
+int document_flight_book_ticket(flight_info_t* info, ticket_t* ticket)
+{
+	info->header->ticket_count++;
+	void* new_mem = realloc(info->tickets, sizeof(ticket_t) * info->header->ticket_count);
+	if (!new_mem)
+	{
+		return ERROR_MEMORY_ALLOC;
+	}
+
+	info->tickets = new_mem;
+
+	info->tickets[info->header->ticket_count - 1] = *ticket;
+
+	return 0;
+}
+
+void document_flight_refound_ticket(ticket_t* ticket)
+{
+	ticket->flags |= TFLAG_DELETE;
 }
 
 void document_destroy_flight_info(flight_info_t* info)

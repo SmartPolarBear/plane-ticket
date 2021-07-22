@@ -15,7 +15,7 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 		wchar_t *title_buf=calloc(64,sizeof(wchar_t));
 		memset(title_buf, 0, sizeof(title_buf));
-		wsprintf(title_buf, L"Tickets of %s ", doc.result[main_list_view_selected].id);
+		wsprintf(title_buf, L"Tickets of %s ", doc.result[main_list_view_selected]->id);
 		SetWindowText(hDlg, title_buf);
 		free(title_buf);
 

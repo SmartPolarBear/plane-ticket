@@ -219,6 +219,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					-1, LVNI_FOCUSED | LVNI_SELECTED);
 				break;
 
+			case NM_DBLCLK:
+				main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
+					-1, LVNI_FOCUSED | LVNI_SELECTED);
+
+				if (main_list_view_selected < 0)
+					break;
+
+				show_ticket_details();
+
+				break;
+
 			case NM_RCLICK:
 				main_list_view_selected = SendMessage(hWndMainListView, LVM_GETNEXTITEM,
 					-1, LVNI_FOCUSED | LVNI_SELECTED);
