@@ -39,6 +39,32 @@ typedef struct ticket
 	uint64_t flags;
 }ticket_t;
 
+typedef struct flight_header
+{
+	uint64_t ticket_count;
+}flight_header_t;
+
+typedef struct flight_info
+{
+	flight_header_t* header;
+	ticket_t* tickets;
+
+	struct
+	{
+		int is_queried;
+	}query;
+
+	struct
+	{
+		int is_sorted;
+	}sort;
+
+	ticket_t* result;
+	size_t result_count;
+}flight_info_t;
+
+
+
 typedef struct document_header
 {
 	uint64_t flight_count;
@@ -63,6 +89,7 @@ typedef struct document
 	size_t result_count;
 }document_t;
 
+
 int load_document(document_t* doc);
 int save_document(document_t* doc);
 
@@ -70,5 +97,8 @@ int document_apply_query(document_t* doc);
 
 int document_add_flight(document_t* doc, flight_t* flight);
 void document_remove_flight(document_t* doc, flight_t* flight);
+
+int document_get_flight_info(flight_t* flight, flight_info_t* out_info);
+void document_destroy_flight_info(flight_info_t* flight);
 
 void destroy_document(document_t* doc);

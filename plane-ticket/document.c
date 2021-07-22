@@ -37,7 +37,7 @@ int load_document(document_t* doc)
 	if (_access(main_db_name, 2) == -1)return ERROR_SUCCESS;
 
 	FILE* main_db = fopen(main_db_name, "rb");
-	if (!doc->header)
+	if (!main_db)
 	{
 		return ERROR_OPENFILE;
 	}
@@ -48,7 +48,7 @@ int load_document(document_t* doc)
 		return ERROR_RWFILE;
 	}
 
-	doc->flights = (flight_t*)malloc(sizeof(flight_t) * doc->header->flight_count);
+	doc->flights = (flight_t*)calloc(doc->header->flight_count, sizeof(flight_t));
 	if (!doc->flights)
 	{
 		fclose(main_db);
@@ -71,7 +71,7 @@ int load_document(document_t* doc)
 int save_document(document_t* doc)
 {
 	FILE* main_db = fopen(main_db_name, "wb");
-	if (!doc->header)
+	if (!main_db)
 	{
 		return ERROR_OPENFILE;
 	}
@@ -110,7 +110,7 @@ int document_apply_query(document_t* doc)
 		free(doc->result);
 	}
 
-	doc->result = malloc(sizeof(flight_t) * total);
+	doc->result = calloc(total,sizeof(flight_t));
 	if (!doc->result)
 	{
 		return ERROR_MEMORY_ALLOC;
@@ -153,6 +153,58 @@ void document_remove_flight(document_t* doc, flight_t* flight)
 			doc->flights[doc->header->flight_count - 1].flags |= FFLAG_DELETE;
 		}
 	}
+}
+
+int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
+{
+	memset(out_info, 0, sizeof(flight_info_t));
+
+	out_info->header = (flight_header_t*)malloc(sizeof(flight_header_t));
+	if (!out_info->header)
+	{
+		return ERROR_MEMORY_ALLOC;
+	}
+	memset(out_info->header, 0, sizeof(flight_header_t));
+
+	out_info->tickets = NULL;
+
+	if (_access(flight->id, 2) == -1)return ERROR_SUCCESS;
+
+	FILE* flight_db = fopen(flight->id, "rb");
+	if (!flight_db)
+	{
+		return ERROR_OPENFILE;
+	}
+
+	if (fread(out_info->header, sizeof(flight_header_t), 1, flight_db) != 1)
+	{
+		fclose(flight_db);
+		return ERROR_RWFILE;
+	}
+
+	out_info->tickets = (flight_t*)calloc(out_info->header->ticket_count, sizeof(ticket_t));
+	if (!out_info->tickets)
+	{
+		fclose(flight_db);
+		return ERROR_MEMORY_ALLOC;
+	}
+	memset(out_info->tickets, 0, sizeof(ticket_t) * out_info->header->ticket_count);
+
+
+	if (fread(out_info->tickets, sizeof(ticket_t), out_info->header->ticket_count, flight_db) != out_info->header->ticket_count)
+	{
+		fclose(flight_db);
+		return ERROR_RWFILE;
+	}
+
+	fclose(flight_db);
+
+}
+
+void document_destroy_flight_info(flight_info_t* info)
+{
+	free(info->header);
+	free(info->tickets);
 }
 
 void destroy_document(document_t* doc)
