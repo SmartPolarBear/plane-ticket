@@ -208,7 +208,7 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 	return 0;
 }
 
-int documeent_flight_info_save(flight_info_t* info)
+int documeent_flight_info_save(document_t* doc, flight_info_t* info)
 {
 	FILE* db = _wfopen(info->parent->id, L"wb");
 	if (!db)
@@ -229,7 +229,7 @@ int documeent_flight_info_save(flight_info_t* info)
 	}
 
 	fclose(db);
-	return ERROR_SUCCESS;
+	return save_document(doc);
 }
 
 int document_flight_apply_query(flight_info_t* info)
@@ -280,6 +280,10 @@ int document_flight_book_ticket(flight_info_t* info, ticket_t* ticket)
 	info->tickets = new_mem;
 
 	info->tickets[info->header->ticket_count - 1] = *ticket;
+
+	info->parent->sold++;
+	info->parent->remaining--;
+
 
 	return 0;
 }

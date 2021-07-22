@@ -15,11 +15,13 @@ static struct column_def
 	int width;
 }columns[] =
 {
-	{L"Flight ID",128},
-	{L"Company",256},
+	{L"Flight ID",64},
+	{L"Company",128},
 	{L"From",128},
 	{L"To",128},
-	{L"Status",256},
+	{L"Status",128},
+	{L"Sold",64},
+	{L"Available",64},
 };
 
 static inline void set_columns()
@@ -41,6 +43,7 @@ static inline void set_columns()
 static inline void main_listview_add(flight_t* f, int idx)
 {
 	wchar_t buf[128] = { 0 };
+	memset(buf, 0, sizeof(buf));
 	memset(&LvItem, 0, sizeof(LvItem)); // Zero struct's Members
 
 	LvItem.mask = LVIF_TEXT;   // Text Style
@@ -63,27 +66,26 @@ static inline void main_listview_add(flight_t* f, int idx)
 	LvItem.pszText = f->to;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
-	if (f->sold == 0)
-	{
-		wcscpy(buf, L"Empty.");
-	}
-	else if (f->remaining == 0)
-	{
-		wcscpy(buf, L"Full.");
-	}
-	else if (f->sold == 0 && f->remaining == 0)
-	{
-		wsprintf(buf, L"%lld sold, %lld avaiable, load factor %.2f.",
-			f->sold,
-			f->remaining,
-			((float)f->sold) / (f->sold + f->remaining));
-	}
-	else
-	{
-		wcscpy(buf, L"Error.");
-	}
-
 	LvItem.iSubItem = 4;
+	if (f->flags & FFLAG_CANCELED)
+	{
+		LvItem.pszText = L"Cancelled";
+	}
+	else if (f->flags & FFLAG_DELAY)
+	{
+		LvItem.pszText = L"Delay";
+	}
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
+
+	memset(buf, 0, sizeof(buf));
+	wsprintf(buf, L"%ld", f->sold);
+	LvItem.iSubItem = 5;
+	LvItem.pszText = buf;
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
+
+	memset(buf, 0, sizeof(buf));
+	wsprintf(buf, L"%ld", f->remaining);
+	LvItem.iSubItem = 6;
 	LvItem.pszText = buf;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 }

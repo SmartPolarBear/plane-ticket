@@ -24,6 +24,8 @@ buf[len] = 0; \
 }while(0) \
 
 
+
+
 static inline void load_class_combo(HWND hDlg)
 {
 	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
@@ -116,7 +118,7 @@ static inline int do_book_flight(HWND hDlg)
 	ticket_t t;
 	memset(&t, 0, sizeof(t));
 
-	CONTROL_TEXT_TO_BUF(IDC_COMBO_SEAT, t.seat, 8);
+	GetWindowText(GetDlgItem(hDlg, IDC_COMBO_SEAT), t.seat, 8);
 
 	// determine the class use first char
 	wchar_t class[2] = { 0 };
@@ -173,7 +175,7 @@ static inline int do_book_flight(HWND hDlg)
 		return ret;
 	}
 
-	ret = documeent_flight_info_save(target_flight);
+	ret = documeent_flight_info_save(&doc, target_flight);
 	if (ret)
 	{
 		MessageBox(hDlg, L"Cannot save flight information", L"Failure", MB_OK | MB_ICONERROR);
