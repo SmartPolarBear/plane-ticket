@@ -1,6 +1,6 @@
 #include "framework.h"
 
-#include "ticket_booking.h"
+#include "ticket_booking_dlg.h"
 
 #include "ticket.h"
 #include "main.h"
@@ -45,16 +45,26 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			EndDialog(hDlg, LOWORD(wParam));
 		}
 
+		load_ticket_listview(hDlg);
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case IDC_BUTTON_BOOK:
-			show_booking_dialog();
+			if (show_booking_dialog() == IDOK)
+			{
+				load_ticket_listview(hDlg);
+			}
+
 			break;
 		default:
-			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+			if (LOWORD(wParam) == IDOK)
+			{
+				EndDialog(hDlg, LOWORD(wParam));
+				return (INT_PTR)TRUE;
+			}
+			else if (LOWORD(wParam) == IDCANCEL)
 			{
 				EndDialog(hDlg, LOWORD(wParam));
 				return (INT_PTR)TRUE;

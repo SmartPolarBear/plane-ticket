@@ -29,12 +29,12 @@
 #define IDC_EDIT_FLIGHT_ID              1017
 #define IDC_EDIT3                       1018
 #define IDC_COMBO_SEAT                  1020
-#define IDC_EDIT4                       1022
-#define IDC_EDIT5                       1023
-#define IDC_EDIT6                       1024
+#define IDC_EDIT_NAME                   1022
+#define IDC_EDIT_PHONE                  1024
 #define IDC_EDIT_NOTES                  1025
-#define IDC_CHECK2                      1026
+#define IDC_UNACCOMPANIED_CHILDREN      1026
 #define IDC_CHECK3                      1028
+#define IDC_CHECK_MEDICAL               1028
 #define IDC_CLASS_COMBO                 1029
 #define IDC_RADIO_FNORMAL               1030
 #define IDC_RADIO_FMUSLIM               1031

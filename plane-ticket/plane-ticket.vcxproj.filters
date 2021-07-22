@@ -51,7 +51,7 @@
     <ClInclude Include="ticket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ticket_booking.h">
+    <ClInclude Include="ticket_booking_dlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClCompile Include="ticket_listview.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ticket_booking.c">
+    <ClCompile Include="ticket_booking_dlg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

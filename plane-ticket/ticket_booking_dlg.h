@@ -1,4 +1,4 @@
 #pragma once
 #include "framework.h"
 
-void show_booking_dialog();
+WPARAM show_booking_dialog();

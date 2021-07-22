@@ -14,8 +14,8 @@ enum
 	FFLAG_CANCELED = 0b100,
 
 	FFLAG_CLASS_HAS_FIRST = 0b1000,
-	FFLAG_CLASS_HAS_ECONOMY = 0b10000,
-	FFLAG_CLASS_HAS_BUSINESS = 0b100000,
+	FFLAG_CLASS_HAS_BUSINESS = 0b10000,
+	FFLAG_CLASS_HAS_ECONOMY = 0b100000
 };
 
 enum
@@ -45,6 +45,7 @@ enum
 typedef struct flight
 {
 	wchar_t id[32];
+
 	wchar_t company[32];
 	wchar_t from[32];
 	wchar_t to[32];
@@ -62,9 +63,11 @@ typedef struct flight
 
 typedef struct ticket
 {
-	wchar_t ticket_id[32];
+	uint64_t id;
+	wchar_t seat[8];
 	wchar_t owner[32];
 	wchar_t owner_id[32];
+	uint64_t owner_phone;
 	wchar_t notes[256];
 
 	uint64_t flight_key;
@@ -95,7 +98,7 @@ typedef struct flight_info
 		int is_sorted;
 	}sort;
 
-	ticket_t* result;
+	ticket_t** result;
 	size_t result_count;
 }flight_info_t;
 

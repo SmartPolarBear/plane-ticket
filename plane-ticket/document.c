@@ -174,9 +174,9 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 
 	out_info->tickets = NULL;
 
-	if (_access(flight->id, 2) == -1)return ERROR_SUCCESS;
+	if (_waccess(flight->id, 2) == -1)return ERROR_SUCCESS;
 
-	FILE* flight_db = fopen(flight->id, "rb");
+	FILE* flight_db = _wfopen(flight->id, L"rb");
 	if (!flight_db)
 	{
 		return ERROR_OPENFILE;
@@ -205,11 +205,12 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 
 	fclose(flight_db);
 
+	return 0;
 }
 
 int documeent_flight_info_save(flight_info_t* info)
 {
-	FILE* db = fopen(info->parent->id, "wb");
+	FILE* db = _wfopen(info->parent->id, L"wb");
 	if (!db)
 	{
 		return ERROR_RWFILE;
@@ -248,7 +249,7 @@ int document_flight_apply_query(flight_info_t* info)
 		free(info->result);
 	}
 
-	info->result = calloc(total, sizeof(ticket_t));
+	info->result = calloc(total, sizeof(ticket_t*));
 	if (!info->result)
 	{
 		return ERROR_MEMORY_ALLOC;
@@ -258,7 +259,7 @@ int document_flight_apply_query(flight_info_t* info)
 	{
 		if (flight_item_apply_query(info, &info->tickets[i]))
 		{
-			info->result[idx++] = info->tickets[i];
+			info->result[idx++] = &info->tickets[i];
 		}
 	}
 
