@@ -1,6 +1,7 @@
 #include "framework.h"
 
 #include "ticket_booking_dlg.h"
+#include "ticket_find_dlg.h"
 
 #include "ticket.h"
 #include "main.h"
@@ -21,7 +22,15 @@ static inline void update_controls(HWND hDlg)
 
 static inline void ticket_book(HWND hDlg)
 {
-	if (show_booking_dialog(target_flight) == IDOK)
+	if (show_booking_dialog(hDlg, target_flight) == IDOK)
+	{
+		load_ticket_listview(hDlg);
+	}
+}
+
+static inline void ticket_find(HWND hDlg)
+{
+	if (ticket_find_dialog(hDlg) == IDOK)
 	{
 		load_ticket_listview(hDlg);
 	}
@@ -123,6 +132,10 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 		case IDC_BUTTON_REFOUND:
 			ticket_refound(hDlg);
+			break;
+
+		case IDC_BUTTON_FIND:
+			ticket_find(hDlg);
 			break;
 
 		default:

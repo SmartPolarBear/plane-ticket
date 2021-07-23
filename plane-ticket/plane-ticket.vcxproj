@@ -164,6 +164,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ticket.h" />
     <ClInclude Include="ticket_booking_dlg.h" />
+    <ClInclude Include="ticket_find_dlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="about_dlg.c" />
@@ -182,6 +183,7 @@
     <ClCompile Include="main_right_panel.c" />
     <ClCompile Include="ticket.c" />
     <ClCompile Include="ticket_booking_dlg.c" />
+    <ClCompile Include="ticket_find_dlg.c" />
     <ClCompile Include="ticket_listview.c" />
   </ItemGroup>
   <ItemGroup>

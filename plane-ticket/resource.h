@@ -26,6 +26,7 @@
 #define IDC_BUTTON_BOOK                 1011
 #define IDC_BUTTON_REFOUND              1012
 #define IDC_BUTTON3                     1013
+#define IDC_BUTTON_FIND                 1013
 #define IDC_LISTTICKET                  1015
 #define IDC_EDIT_FLIGHT_ID              1017
 #define IDC_EDIT3                       1018
