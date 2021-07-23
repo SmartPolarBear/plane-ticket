@@ -41,10 +41,9 @@
 #define IDC_RADIO_FVEGE                 1032
 #define IDC_STATIC_NOTES_LENGTH         1033
 #define IDC_BUTTON1                     1034
+#define IDC_BUTTON_DETAILS              1034
 #define IDC_COND_COMBO                  1039
-#define IDC_LIST1                       1040
 #define IDC_RESULT_LIST                 1040
-#define IDC_BUTTON2                     1041
 #define IDC_DATETIMEPICKER1             1042
 #define IDC_CHECK1                      1043
 #define IDC_CHECK2                      1044

@@ -223,6 +223,10 @@ INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARA
 
 	case WM_NOTIFY:
 		break;
+
+	case WM_DESTROY:
+		result_list_selected = -1;
+		break;
 	}
 	return (INT_PTR)FALSE;
 }

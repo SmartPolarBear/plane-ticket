@@ -282,6 +282,10 @@ INT_PTR CALLBACK TicketBookingWndProc(HWND hDlg, UINT message, WPARAM wParam, LP
 			break;
 		}
 		break;
+
+	case WM_DESTROY:
+		target_seat = NULL;
+		target_flags = 0;
 	}
 	return (INT_PTR)FALSE;
 }

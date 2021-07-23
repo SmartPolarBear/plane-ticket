@@ -18,7 +18,7 @@ int ticket_listview_selected = -1;
 static inline void update_controls(HWND hDlg)
 {
 	Button_Enable(GetDlgItem(hDlg, IDC_BUTTON_REFOUND), (ticket_listview_selected >= 0));
-
+	Button_Enable(GetDlgItem(hDlg, IDC_BUTTON_DETAILS), (ticket_listview_selected >= 0));
 }
 
 static inline void ticket_book(HWND hDlg)
@@ -31,7 +31,7 @@ static inline void ticket_book(HWND hDlg)
 
 static inline void ticket_find(HWND hDlg)
 {
-	if (ticket_find_dialog(hDlg) == IDOK)
+	if (ticket_find_dialog(hDlg) != IDCANCEL)
 	{
 		load_ticket_listview(hDlg);
 	}
@@ -182,6 +182,8 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 	case WM_DESTROY:
 		free(target_flight);
+		ticket_listview_selected = -1;
+		target_flight = NULL;
 		break;
 	}
 	return (INT_PTR)FALSE;
