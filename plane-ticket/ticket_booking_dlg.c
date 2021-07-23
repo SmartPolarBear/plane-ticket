@@ -171,7 +171,7 @@ static inline int do_book_flight(HWND hDlg)
 		t.flags |= IDC_RADIO_FVEGE;
 	}
 
-	t.id = hashing(t.owner_id);
+	t.id = (uint32_t)hashing(t.owner_id);
 
 	int ret = document_flight_book_ticket(target_flight, &t);
 	if (ret)

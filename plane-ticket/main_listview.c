@@ -17,6 +17,7 @@ static struct column_def
 {
 	{L"Flight ID",64},
 	{L"Company",128},
+	{L"Date",128},
 	{L"From",128},
 	{L"To",128},
 	{L"Status",128},
