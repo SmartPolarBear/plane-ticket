@@ -161,7 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case IDM_FLIGHT_VIEW_TICKETS:
-			show_ticket_details();
+			show_ticket_dlg();
 			break;
 		case IDM_FLIGHT_ADD:
 			show_add_flight_dialog();
@@ -245,7 +245,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (main_list_view_selected < 0)
 					break;
 
-				show_ticket_details();
+				show_ticket_dlg();
 
 				break;
 

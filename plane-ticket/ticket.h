@@ -4,7 +4,7 @@
 
 extern struct flight_info* target_flight;
 
-void show_ticket_details();
+void show_ticket_dlg();
 
 void create_ticket_listview(HWND parent);
 void load_ticket_listview(HWND hDlg);

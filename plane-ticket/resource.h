@@ -18,6 +18,7 @@
 #define IDD_TICKET_DIALOG               130
 #define IDD_DIALOG_BOOKING              131
 #define IDD_DIALOG_FIND_SEAT            132
+#define IDD_DIALOG_TICKET_DETAILS       133
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
@@ -40,7 +41,6 @@
 #define IDC_RADIO_FMUSLIM               1031
 #define IDC_RADIO_FVEGE                 1032
 #define IDC_STATIC_NOTES_LENGTH         1033
-#define IDC_BUTTON1                     1034
 #define IDC_BUTTON_DETAILS              1034
 #define IDC_COND_COMBO                  1039
 #define IDC_RESULT_LIST                 1040
@@ -50,6 +50,8 @@
 #define IDC_CHECK3                      1045
 #define IDC_CHECK4                      1046
 #define IDC_DATETIMEPICKER2             1048
+#define IDC_LIST1                       1049
+#define IDC_LIST_MAIN                   1049
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -77,9 +79,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1051
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

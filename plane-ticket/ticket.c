@@ -2,6 +2,7 @@
 
 #include "ticket_booking_dlg.h"
 #include "ticket_find_dlg.h"
+#include "ticket_details_dlg.h"
 
 #include "ticket.h"
 #include "main.h"
@@ -35,6 +36,11 @@ static inline void ticket_find(HWND hDlg)
 	{
 		load_ticket_listview(hDlg);
 	}
+}
+
+static inline void ticket_details(HWND hDlg)
+{
+	show_ticket_details_dlg(hDlg, target_flight->result[ticket_listview_selected]);
 }
 
 static inline void ticket_refound(HWND hDlg)
@@ -139,6 +145,10 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			ticket_find(hDlg);
 			break;
 
+		case IDC_BUTTON_DETAILS:
+			ticket_details(hDlg);
+			break;
+
 		default:
 			if (LOWORD(wParam) == IDOK)
 			{
@@ -189,7 +199,7 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	return (INT_PTR)FALSE;
 }
 
-void show_ticket_details()
+void show_ticket_dlg()
 {
 	DialogBox(hInst, MAKEINTRESOURCE(IDD_TICKET_DIALOG), hMainWnd, TicketWndProc);
 	load_document(&doc);
