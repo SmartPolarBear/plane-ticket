@@ -144,6 +144,8 @@ int documeent_flight_info_save(document_t* doc, flight_info_t* out_info);
 
 int document_flight_apply_query(flight_info_t* info);
 
+int document_flight_get_rows(flight_info_t* f);
+
 int  document_flight_book_ticket(flight_info_t* info, ticket_t* ticket);
 int document_flight_refound_ticket(flight_info_t* info, ticket_t* ticket);
 

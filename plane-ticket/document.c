@@ -371,3 +371,8 @@ void destroy_document(document_t* doc)
 		free(doc->flights);
 	}
 }
+
+int document_flight_get_rows(flight_info_t* f)
+{
+	return (int)ceil((f->parent->remaining + f->parent->sold) / 6.0);
+}

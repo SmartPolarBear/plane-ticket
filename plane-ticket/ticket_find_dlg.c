@@ -1,6 +1,132 @@
 #include "ticket_find_dlg.h"
 
 #include "main.h"
+#include "ticket.h"
+
+#include <windowsx.h>
+#include <intrin.h>
+
+static inline void load_class_combo(HWND hDlg)
+{
+	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
+
+	int i = 0;
+	if (target_flight->parent->flags & FFLAG_CLASS_HAS_FIRST)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"First");
+	}
+
+	if (target_flight->parent->flags & FFLAG_CLASS_HAS_BUSINESS)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"Business");
+	}
+
+	if (target_flight->parent->flags & FFLAG_CLASS_HAS_ECONOMY)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"Economy");
+	}
+
+	SendMessage(h_class_combo, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+}
+
+wchar_t* conds[] = { L"Beside Window" ,L"Beside Corridor",L"2 Adjacent",L"3 Adjacent" };
+
+static inline void load_condition_combo(HWND hDlg)
+{
+	HWND h_cond_combo = GetDlgItem(hDlg, IDC_COND_COMBO);
+	for (int i = 0; i < sizeof(conds) / sizeof(conds[0]); i++)
+	{
+		SendMessage(h_cond_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)conds[i]);
+	}
+	SendMessage(h_cond_combo, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+
+}
+
+static inline void do_find_by_mask_range(HWND hDlg, int pos_mask, int start, int end)
+{
+	HWND h_result_list = GetDlgItem(hDlg, IDC_RESULT_LIST);
+
+	wchar_t buf[6][64] = { 0 }, * cols[] = { L"A",L"B",L"C",L"H",L"J",L"K" };
+	for (int i = start; i <= end; i++)
+	{
+		if (((~target_flight->parent->ticket_bitmap[i]) & pos_mask) == pos_mask)
+		{
+			for (int j = 0, idx = 0; j < 6; j++)
+			{
+				if (pos_mask & (1 << j))
+				{
+					swprintf(buf[idx], sizeof(buf[idx]) / sizeof(buf[idx][0]), L"%d%ls", i, cols[j]);
+					idx++;
+				}
+			}
+
+			wchar_t full_buf[256] = { 0 };
+			swprintf(full_buf, sizeof(full_buf) / sizeof(full_buf[0]), L"%ls %ls %ls %ls %ls %ls", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+
+			ListBox_AddString(h_result_list, full_buf);
+		}
+	}
+}
+
+static inline void do_find_by_mask(HWND hDlg, int pos_mask)
+{
+	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
+	// determine the class use first char
+	wchar_t buf[2] = { 0 };
+	GetWindowText(h_class_combo, buf, 2);
+
+	int rows = document_flight_get_rows(target_flight), row_start = 1;
+	switch (buf[0])
+	{
+	case 'F': // First
+		rows = 3;
+		row_start = 1;
+		break;
+	case 'B':// Business
+		rows = 3;
+		row_start = 4;
+		break;
+	case 'E': // Economy
+		rows = document_flight_get_rows(target_flight) - 6;
+		row_start = 7;
+		break;
+	}
+
+	do_find_by_mask_range(hDlg, pos_mask, row_start, row_start + rows - 1);
+}
+
+static inline void do_find(HWND hDlg)
+{
+	HWND h_result_list = GetDlgItem(hDlg, IDC_RESULT_LIST);
+
+	ListBox_ResetContent(h_result_list);
+
+
+	int sel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COND_COMBO));
+	switch (sel)
+	{
+	case 0:
+		do_find_by_mask(hDlg, 0b000001);
+		do_find_by_mask(hDlg, 0b100000);
+		break;
+	case 1:
+		do_find_by_mask(hDlg, 0b000100);
+		do_find_by_mask(hDlg, 0b001000);
+		break;
+	case 2:
+		for (int mask = 0b11; mask != 0b110000; mask <<= 1)
+		{
+			do_find_by_mask(hDlg, mask);
+		}
+		break;
+	case 3:
+		for (int mask = 0b111; mask != 0b111000; mask <<= 1)
+		{
+			do_find_by_mask(hDlg, mask);
+		}
+		break;
+	}
+}
 
 INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -8,14 +134,25 @@ INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	switch (message)
 	{
 	case WM_INITDIALOG:
+		load_class_combo(hDlg);
+		load_condition_combo(hDlg);
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
 
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		switch (LOWORD(wParam))
 		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
+		case IDC_BUTTON_FIND:
+
+			do_find(hDlg);
+
+			break;
+		default:
+			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+			{
+				EndDialog(hDlg, LOWORD(wParam));
+				return (INT_PTR)TRUE;
+			}
 		}
 		break;
 	}

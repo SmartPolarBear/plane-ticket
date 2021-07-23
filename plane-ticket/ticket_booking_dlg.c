@@ -49,11 +49,6 @@ static inline void load_class_combo(HWND hDlg)
 }
 
 
-static inline int get_rows()
-{
-	return (int)ceil((target_flight->parent->remaining + target_flight->parent->sold) / 6.0);
-}
-
 static inline void add_available_seat_for_row(HWND h_seat_combo, uint8_t row, int idx)
 {
 	wchar_t buf[16] = { 0 };
@@ -79,7 +74,7 @@ static inline void load_seat_combo(HWND hDlg)
 	wchar_t buf[2] = { 0 };
 	GetWindowText(h_class_combo, buf, 2);
 
-	int rows = get_rows(), row_start = 1;
+	int rows = document_flight_get_rows(target_flight), row_start = 1;
 	switch (buf[0])
 	{
 	case 'F': // First
@@ -91,7 +86,7 @@ static inline void load_seat_combo(HWND hDlg)
 		row_start = 4;
 		break;
 	case 'E': // Economy
-		rows = get_rows() - 6;
+		rows = document_flight_get_rows(target_flight) - 6;
 		row_start = 7;
 		break;
 	}
@@ -115,7 +110,6 @@ static inline void load_seat_info(HWND hDlg)
 
 static inline void update_button_status()
 {
-
 }
 
 static inline int do_book_flight(HWND hDlg)
