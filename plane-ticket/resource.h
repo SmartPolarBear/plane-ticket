@@ -25,7 +25,6 @@
 #define IDC_EDIT_COUNT                  1007
 #define IDC_BUTTON_BOOK                 1011
 #define IDC_BUTTON_REFOUND              1012
-#define IDC_BUTTON3                     1013
 #define IDC_BUTTON_FIND                 1013
 #define IDC_LISTTICKET                  1015
 #define IDC_EDIT_FLIGHT_ID              1017
@@ -46,6 +45,13 @@
 #define IDC_COMBO3                      1039
 #define IDC_LIST1                       1040
 #define IDC_BUTTON2                     1041
+#define IDC_DATETIMEPICKER1             1042
+#define IDC_CHECK1                      1043
+#define IDC_CHECK2                      1044
+#define IDC_CHECK3                      1045
+#define IDC_CHECK4                      1046
+#define IDC_CHECK5                      1047
+#define IDC_DATETIMEPICKER2             1048
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -75,7 +81,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1042
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
