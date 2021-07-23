@@ -23,11 +23,38 @@ GetDlgItemText(hDlg, id, buf, buf_len); \
 buf[len] = 0; \
 }while(0) \
 
+static wchar_t* target_seat = NULL;
+static int target_flags = 0;
 
 
+static inline void load_class_combo_targeted(HWND hDlg)
+{
+	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
+	if (target_flags & TFLAG_CLASS_FIRST)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"First");
+	}
+	else if(target_flags & TFLAG_CLASS_BUSINESS)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"Business");
+	}
+	else if (target_flags & TFLAG_CLASS_ECONOMY)
+	{
+		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"Economy");
+	}
+	ComboBox_SetCurSel(h_class_combo, 0);
+	ComboBox_Enable(h_class_combo, FALSE);
+
+}
 
 static inline void load_class_combo(HWND hDlg)
 {
+	if (target_seat != NULL)
+	{
+		load_class_combo_targeted(hDlg);
+		return;
+	}
+
 	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
 
 	if (target_flight->parent->flags & FFLAG_CLASS_HAS_FIRST)
@@ -48,6 +75,13 @@ static inline void load_class_combo(HWND hDlg)
 	SendMessage(h_class_combo, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 }
 
+static inline void load_seat_combo_targeted(HWND hDlg)
+{
+	HWND h_seat_combo = GetDlgItem(hDlg, IDC_COMBO_SEAT);
+	ComboBox_AddString(h_seat_combo,target_seat);
+	ComboBox_SetCurSel(h_seat_combo, 0);
+	ComboBox_Enable(h_seat_combo, FALSE);
+}
 
 static inline void add_available_seat_for_row(HWND h_seat_combo, uint8_t row, int idx)
 {
@@ -59,7 +93,8 @@ static inline void add_available_seat_for_row(HWND h_seat_combo, uint8_t row, in
 		if ((row & (1 << i)) == 0)
 		{
 			wsprintf(buf, L"%d%c", idx, rows[i]);
-			SendMessage(h_seat_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)buf);
+			ComboBox_AddString(h_seat_combo, buf);
+			//SendMessage(h_seat_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)buf);
 			memset(buf, 0, sizeof(buf));
 		}
 	}
@@ -67,6 +102,11 @@ static inline void add_available_seat_for_row(HWND h_seat_combo, uint8_t row, in
 
 static inline void load_seat_combo(HWND hDlg)
 {
+	if (target_seat != NULL)
+	{
+		load_seat_combo_targeted(hDlg);
+		return;
+	}
 	HWND h_seat_combo = GetDlgItem(hDlg, IDC_COMBO_SEAT),
 		h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
 
@@ -116,6 +156,7 @@ static inline int do_book_flight(HWND hDlg)
 {
 	ticket_t t;
 	memset(&t, 0, sizeof(t));
+	t.flags |= target_flags;
 
 	GetWindowText(GetDlgItem(hDlg, IDC_COMBO_SEAT), t.seat, 8);
 
@@ -249,5 +290,13 @@ INT_PTR CALLBACK TicketBookingWndProc(HWND hDlg, UINT message, WPARAM wParam, LP
 WPARAM show_booking_dialog(HWND hDlg, flight_info_t* target)
 {
 	target_flight = target;
+	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_BOOKING), hDlg, TicketBookingWndProc);
+}
+
+WPARAM show_booking_dialog_target_seat(HWND hDlg, flight_info_t* target, wchar_t* seat, int flags)
+{
+	target_flight = target;
+	target_seat = seat;
+	target_flags = flags;
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_BOOKING), hDlg, TicketBookingWndProc);
 }

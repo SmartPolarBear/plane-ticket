@@ -1,10 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "ticket_find_dlg.h"
 
 #include "main.h"
 #include "ticket.h"
 
+#include "ticket_booking_dlg.h"
+
 #include <windowsx.h>
 #include <intrin.h>
+
+static int result_list_selected = -1;
 
 static inline void load_class_combo(HWND hDlg)
 {
@@ -128,6 +134,31 @@ static inline void do_find(HWND hDlg)
 	}
 }
 
+static inline void update_control_status(HWND hDlg)
+{
+	Button_Enable(GetDlgItem(hDlg, IDC_BUTTON_BOOK), result_list_selected >= 0);
+}
+
+static inline int get_class_flags(HWND hDlg)
+{
+	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);
+
+	// determine the class use first char
+	wchar_t buf[2] = { 0 };
+	GetWindowText(h_class_combo, buf, 2);
+
+	switch (buf[0])
+	{
+	case 'F': // First
+		return TFLAG_CLASS_FIRST;
+	case 'B':// Business
+		return TFLAG_CLASS_BUSINESS;
+	case 'E': // Economy
+		return TFLAG_CLASS_ECONOMY;
+	}
+	return 0;
+}
+
 INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -147,6 +178,40 @@ INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			do_find(hDlg);
 
 			break;
+
+		case IDC_BUTTON_BOOK:
+
+			wchar_t buf[64] = { 0 }, buf2[64] = { 0 };
+			ListBox_GetText(GetDlgItem(hDlg, IDC_RESULT_LIST), result_list_selected, buf);
+			int row = 0, target_flag = get_class_flags(hDlg);
+			wchar_t col = 0;
+
+			wchar_t* pbuf = buf;
+			while (swscanf(pbuf, L"%d%lc", &row, &col) == 2)
+			{
+				swprintf(buf2, sizeof(buf2) / sizeof(buf2[0]), L"%d%lc", row, col);
+				show_booking_dialog_target_seat(hDlg, target_flight, buf2, target_flag);
+
+				while (*pbuf && *pbuf != ' ')
+					pbuf++;
+
+				pbuf++;
+			}
+			break;
+
+		case IDC_RESULT_LIST:
+
+			switch (HIWORD(wParam))
+			{
+			case LBN_SELCHANGE:
+				result_list_selected = ListBox_GetCurSel((HWND)lParam);
+				update_control_status(hDlg);
+			default:
+				break;
+			}
+
+			break;
+
 		default:
 			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 			{
@@ -154,6 +219,9 @@ INT_PTR CALLBACK TicketFindWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARA
 				return (INT_PTR)TRUE;
 			}
 		}
+		break;
+
+	case WM_NOTIFY:
 		break;
 	}
 	return (INT_PTR)FALSE;

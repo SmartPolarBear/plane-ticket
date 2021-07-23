@@ -12,6 +12,7 @@
 
 flight_info_t* target_flight = NULL;
 
+
 int ticket_listview_selected = -1;
 
 static inline void update_controls(HWND hDlg)
