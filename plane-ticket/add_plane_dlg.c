@@ -9,6 +9,7 @@
 #include "main.h"
 
 #include <stdlib.h>
+#include <windowsx.h>
 
 #define CONTROL_TEXT_TO_BUF(id,buf,buf_len) \
 do \
@@ -38,7 +39,7 @@ int do_add_plane(HWND hDlg)
 	CONTROL_TEXT_TO_BUF(IDC_EDIT_TO, f.to, 32);
 
 
-	wchar_t count_buf[32] = { 0 },*end=NULL;
+	wchar_t count_buf[32] = { 0 }, * end = NULL;
 	CONTROL_TEXT_TO_BUF(IDC_EDIT_COUNT, count_buf, 32);
 
 	f.sold = 0;
@@ -46,9 +47,30 @@ int do_add_plane(HWND hDlg)
 
 	f.flight_key = hashing(f.id);
 
-	f.flags |= FFLAG_CLASS_HAS_BUSINESS;
-	f.flags |= FFLAG_CLASS_HAS_FIRST;
-	f.flags |= FFLAG_CLASS_HAS_ECONOMY;
+	if (IsDlgButtonChecked(hDlg, IDC_CHECK_FIRST))
+		f.flags |= FFLAG_CLASS_HAS_FIRST;
+
+	if (IsDlgButtonChecked(hDlg, IDC_CHECK_BUSINESS))
+		f.flags |= FFLAG_CLASS_HAS_BUSINESS;
+
+	if (IsDlgButtonChecked(hDlg, IDC_CHECK_ECONOMY))
+		f.flags |= FFLAG_CLASS_HAS_ECONOMY;
+
+	if (IsDlgButtonChecked(hDlg, IDC_CHECK_ALLOW_CUSTOM_FOOD))
+		f.flags |= FFLAG_ALLOW_CUSTOM_FOOD;
+
+	HWND h_date_picker = GetDlgItem(hDlg, IDC_DATE_PICKER), h_time_picker = GetDlgItem(hDlg, IDC_TIME_PICKER);
+	SYSTEMTIME date, time;
+	DateTime_GetSystemtime(h_date_picker, &date);
+	DateTime_GetSystemtime(h_time_picker, &time);
+
+	f.date.year = date.wYear;
+	f.date.month = date.wMonth;
+	f.date.day = date.wDay;
+
+	f.date.hours = time.wHour;
+	f.date.minutes = time.wMinute;
+	f.date.seconds = time.wSecond;
 
 	int ret = document_add_flight(&doc, &f);
 	if (ret)
@@ -70,6 +92,11 @@ INT_PTR CALLBACK AddPlaneDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 	case WM_INITDIALOG:
+		Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_FIRST), TRUE);
+		Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_BUSINESS), TRUE);
+		Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_ECONOMY), TRUE);
+		Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_ALLOW_CUSTOM_FOOD), TRUE);
+
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:

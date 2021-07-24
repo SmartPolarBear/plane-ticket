@@ -15,7 +15,9 @@ enum
 
 	FFLAG_CLASS_HAS_FIRST = 0b1000,
 	FFLAG_CLASS_HAS_BUSINESS = 0b10000,
-	FFLAG_CLASS_HAS_ECONOMY = 0b100000
+	FFLAG_CLASS_HAS_ECONOMY = 0b100000,
+
+	FFLAG_ALLOW_CUSTOM_FOOD = 0b1000000
 };
 
 enum
@@ -42,6 +44,11 @@ enum
 	SEAT_K = (1 << 5),
 };
 
+typedef struct flight_date
+{
+	uint64_t year, month, day, hours, minutes, seconds;
+}flight_date_t;
+
 typedef struct flight
 {
 	wchar_t id[32];
@@ -53,7 +60,7 @@ typedef struct flight
 	uint64_t sold;
 	uint64_t remaining;
 
-	uint64_t takeof_timestamp;
+	flight_date_t date;
 
 	uint8_t ticket_bitmap[256];
 

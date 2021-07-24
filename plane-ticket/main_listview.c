@@ -17,7 +17,7 @@ static struct column_def
 {
 	{L"Flight ID",64},
 	{L"Company",128},
-	{L"Date",128},
+	{L"Date",200},
 	{L"From",128},
 	{L"To",128},
 	{L"Status",128},
@@ -59,15 +59,22 @@ static inline void main_listview_add(flight_t* f, int idx)
 	LvItem.pszText = f->company;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
+	memset(buf, 0, sizeof(buf));
+	swprintf(buf, sizeof(buf) / sizeof(buf[0]), L"%lld/%lld/%lld %lld:%lld:%lld", f->date.year, f->date.month, f->date.day,
+		f->date.hours, f->date.minutes, f->date.seconds);
 	LvItem.iSubItem = 2;
-	LvItem.pszText = f->from;
+	LvItem.pszText = buf;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	LvItem.iSubItem = 3;
-	LvItem.pszText = f->to;
+	LvItem.pszText = f->from;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	LvItem.iSubItem = 4;
+	LvItem.pszText = f->to;
+	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
+
+	LvItem.iSubItem = 5;
 	if (f->flags & FFLAG_CANCELED)
 	{
 		LvItem.pszText = L"Cancelled";
@@ -80,13 +87,13 @@ static inline void main_listview_add(flight_t* f, int idx)
 
 	memset(buf, 0, sizeof(buf));
 	wsprintf(buf, L"%ld", f->sold);
-	LvItem.iSubItem = 5;
+	LvItem.iSubItem = 6;
 	LvItem.pszText = buf;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	memset(buf, 0, sizeof(buf));
 	wsprintf(buf, L"%ld", f->remaining);
-	LvItem.iSubItem = 6;
+	LvItem.iSubItem = 7;
 	LvItem.pszText = buf;
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 }

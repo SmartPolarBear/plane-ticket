@@ -123,4 +123,7 @@
       <Filter>Resource Files</Filter>
     </Manifest>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+  </ItemGroup>
 </Project>
