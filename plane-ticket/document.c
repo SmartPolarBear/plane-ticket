@@ -6,6 +6,8 @@
 
 #include <io.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 const char* main_db_name = "main_db";
 
@@ -25,16 +27,50 @@ static inline wchar_t* flight_get_db_file_name(const flight_t* f)
 	return flight_db_name_buf;
 }
 
+
+
+static inline int flight_id_cmp(const void* a, const void* b)
+{
+	flight_t* fa = *(flight_t**)a;
+	flight_t* fb = *(flight_t**)b;
+	return strcmp(fa->id, fb->id);
+}
+
+static inline int flight_date_cmp(const void* a, const void* b)
+{
+	flight_t* fa = *(flight_t**)a;
+	flight_t* fb = *(flight_t**)b;
+	return flight_date_comp(&fa->date, &fb->date);
+}
+
 static inline int document_item_apply_query(const document_t* doc, const flight_t* f)
 {
 	if (!f)return FALSE;
 
 	if (f->flags & FFLAG_DELETE)return FALSE;
 
-	int result = TRUE;
+	if (!doc->query.is_queried)
+	{
+		return TRUE;
+	}
 
+	if (doc->query.dest)
+	{
+		if (wcsstr(f->to, doc->query.dest) == NULL)
+		{
+			return FALSE;
+		}
+	}
 
-	return result;
+	if (doc->query.date_from && doc->query.date_to)
+	{
+		if (flight_date_comp(&f->date, doc->query.date_from) < 0 || flight_date_comp(&f->date, doc->query.date_to) > 0)
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
 }
 
 static inline int flight_item_apply_query(const flight_info_t* info, const ticket_t* t)
@@ -119,6 +155,35 @@ int save_document(document_t* doc)
 	return ERROR_SUCCESS;
 }
 
+int flight_date_comp(const flight_date_t* f1, const flight_date_t* f2)
+{
+	if (f1->year != f2->year)
+	{
+		return f1->year - f2->year;
+	}
+	else if (f1->month != f2->month)
+	{
+		return f1->month - f2->month;
+	}
+	else if (f1->day != f2->day)
+	{
+		return f1->day - f2->day;
+	}
+	else if (f1->hours != f2->hours)
+	{
+		return f1->hours - f2->hours;
+	}
+	else if (f1->minutes != f2->minutes)
+	{
+		return f1->minutes - f2->minutes;
+	}
+	else if (f1->seconds != f2->seconds)
+	{
+		return f1->seconds - f2->seconds;
+	}
+
+	return 0;
+}
 
 int document_apply_query(document_t* doc)
 {
@@ -148,6 +213,18 @@ int document_apply_query(document_t* doc)
 		if (document_item_apply_query(doc, &doc->flights[i]))
 		{
 			doc->result[idx++] = &doc->flights[i];
+		}
+	}
+
+	if (doc->sort.is_sorted)
+	{
+		if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_NAME)
+		{
+			qsort(doc->result, doc->header->flight_count, sizeof(flight_t*), flight_id_cmp);
+		}
+		else if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_DATE)
+		{
+			qsort(doc->result, doc->header->flight_count, sizeof(flight_t*), flight_date_cmp);
 		}
 	}
 
@@ -392,6 +469,6 @@ void destroy_document(document_t* doc)
 
 int document_flight_get_rows(flight_info_t* f)
 {
-	float result= (f->parent->remaining + f->parent->sold) / 6.0;
-	return (int)(result+0.5);
+	float result = (f->parent->remaining + f->parent->sold) / 6.0;
+	return (int)(result + 0.5);
 }

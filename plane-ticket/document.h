@@ -22,6 +22,13 @@ enum
 
 enum
 {
+	FLIGHT_QUERY_NO_SORT = 0b1,
+	FLIGHT_QUERY_SORT_DATE = 0b10,
+	FLIGHT_QUERY_SORT_NAME = 0b100,
+};
+
+enum
+{
 	TFLAG_DELETE = 0b1,
 	TFLAG_UNACCOMPANIED_CHILDREN = 0b10,
 	TFLAG_MEDICAL_NEEDS = 0b100,
@@ -48,6 +55,8 @@ typedef struct flight_date
 {
 	uint64_t year, month, day, hours, minutes, seconds;
 }flight_date_t;
+
+int flight_date_comp(const flight_date_t* f1, const flight_date_t* f2);
 
 typedef struct flight
 {
@@ -121,15 +130,20 @@ typedef struct document
 	document_header_t* header;
 	flight_t* flights;
 
+
 	struct
 	{
+		flight_date_t* date_from, * date_to;
+		wchar_t* dest;
 		int is_queried;
 	}query;
 
 	struct
 	{
+		uint32_t sort_flags;
 		int is_sorted;
 	}sort;
+
 
 	flight_t** result;
 	size_t result_count;
