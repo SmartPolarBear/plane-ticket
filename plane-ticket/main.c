@@ -234,8 +234,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case ID_FILE_NEW:
+		case ID_FLIGHT_DELETE_CANCELLED:
+		{
+			DWORD confirm = MessageBox(hMainWnd, L"Are you sure to delete all cancelled flights?", L"Comfirm", MB_YESNO | MB_ICONQUESTION);
+			
+			if (confirm != IDYES)
+			{
+				break;
+			}
+
+			for (int i = 0; i < doc.header->flight_count; i++)
+			{
+				if ((doc.flights[i].flags & FFLAG_DELETE) == 0 && (doc.flights[i].flags & FFLAG_CANCELED) != 0)
+				{
+					document_remove_flight(&doc.flights[i]);
+				}
+			}
+
+			int ret = save_document(&doc);
+			if (ret)
+			{
+				MessageBox(hMainWnd, L"Cannot save flight data!", L"Failure", MB_OK | MB_ICONERROR);
+				break;
+			}
+
+			load_main_listview();
 			break;
+		}
 		case ID_SELECTED_SETSTATUS:
 			if (show_flight_status_dlg(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
 			{
