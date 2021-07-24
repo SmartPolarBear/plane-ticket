@@ -6,6 +6,9 @@
 
 #include "document.h"
 
+#include "ticket_find_dlg.h"
+#include "ticket_booking_dlg.h"
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -170,10 +173,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			main_list_view_delete_selected_item();
 			break;
 		case IDM_FLIGHT_BOOK:
+		{
 			flight_info_t* info = malloc(sizeof(flight_info_t));
 
 			if (!info)
 			{
+				free(info);
+
 				MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
 				exit(1);
 			}
@@ -181,15 +187,46 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int ret = document_get_flight_info(doc.result[main_list_view_selected], info);
 			if (ret)
 			{
+				free(info);
+
 				MessageBox(hMainWnd, L"Cannot load flight data!", L"Failure", MB_OK | MB_ICONERROR);
 				break;
 			}
 
-			if (show_booking_dialog(info) == IDOK)
+			if (show_booking_dialog(hMainWnd, info) == IDOK)
 			{
 				load_main_listview();
 			}
+
+			free(info);
+
 			break;
+		}
+		case ID_SELECTED_FINDSEATS:
+		{
+			flight_info_t* info = malloc(sizeof(flight_info_t));
+
+			if (!info)
+			{
+				free(info);
+				MessageBox(hMainWnd, L"Insufficient memory!", L"Failure", MB_OK | MB_ICONERROR);
+				exit(1);
+			}
+
+			int ret = document_get_flight_info(doc.result[main_list_view_selected], info);
+			if (ret)
+			{
+				free(info);
+				MessageBox(hMainWnd, L"Cannot load flight data!", L"Failure", MB_OK | MB_ICONERROR);
+				break;
+			}
+
+			ticket_find_dialog_targeted(hMainWnd, info);
+
+			free(info);
+
+			break;
+		}
 		case IDM_ABOUT:
 			show_about_dialog();
 			break;

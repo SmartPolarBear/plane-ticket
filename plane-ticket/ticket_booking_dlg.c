@@ -299,6 +299,7 @@ WPARAM show_booking_dialog(HWND hDlg, flight_info_t* target)
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_BOOKING), hDlg, TicketBookingWndProc);
 }
 
+
 WPARAM show_booking_dialog_target_seat(HWND hDlg, flight_info_t* target, wchar_t* seat, int flags)
 {
 	target_flight = target;

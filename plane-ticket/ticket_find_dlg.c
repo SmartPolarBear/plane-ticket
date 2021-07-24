@@ -237,3 +237,11 @@ WPARAM ticket_find_dialog(HWND hDlg)
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_FIND_SEAT), hDlg, TicketFindWndProc);
 }
 
+WPARAM ticket_find_dialog_targeted(HWND hDlg, flight_info_t* flight)
+{
+	flight_info_t* tmp = target_flight;
+	target_flight = flight;
+	DWORD ret= DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_FIND_SEAT), hDlg, TicketFindWndProc);
+	target_flight = tmp;
+	return ret;
+}
