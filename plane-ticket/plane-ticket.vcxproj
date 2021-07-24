@@ -154,6 +154,7 @@
     <ClInclude Include="about_dlg.h" />
     <ClInclude Include="add_plane_dlg.h" />
     <ClInclude Include="control_id.h" />
+    <ClInclude Include="duplicate_flight_dialog.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="flight_status_dlg.h" />
     <ClInclude Include="framework.h" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClCompile Include="about_dlg.c" />
     <ClCompile Include="add_plane_dlg.c" />
+    <ClCompile Include="duplicate_flight_dialog.c" />
     <ClCompile Include="flight_status_dlg.c" />
     <ClCompile Include="helper.c" />
     <ClCompile Include="main.c">

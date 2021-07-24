@@ -21,6 +21,7 @@
 #define IDD_DIALOG_TICKET_DETAILS       133
 #define IDD_DIALOG_QUERY_PANEL          134
 #define IDD_DIALOG_SET_FLIGHT_STATUS    135
+#define IDD_DIALOG_DUPLICATE_FLIGHT     136
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
@@ -70,6 +71,8 @@
 #define IDC_RADIO_NORMAL                1067
 #define IDC_RADIO_CANCEL                1068
 #define IDC_RADIO_DELAYED               1069
+#define IDC_DATETIMEPICKER1             1070
+#define IDC_DATETIMEPICKER_DATE         1070
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -93,6 +96,7 @@
 #define ID_VIEW_QUERY                   32795
 #define ID_SELECTED_SETSTATUS           32796
 #define ID_FLIGHT_DELETE_CANCELLED      32797
+#define ID_SELECTED_DUPLICATE           32798
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -100,9 +104,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        136
-#define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         1070
+#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_COMMAND_VALUE         32799
+#define _APS_NEXT_CONTROL_VALUE         1071
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -26,6 +26,7 @@ void create_main_listview(HWND hwndParent, int x, int y, int w, int h);
 void main_listview_resize();
 void load_main_listview();
 void main_list_view_delete_selected_item();
+void main_list_view_duplicate_selected_item();
 
 void create_right_panel(HWND hwndParent);
 

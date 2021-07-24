@@ -1,5 +1,7 @@
 #define  _CRT_SECURE_NO_WARNINGS
 
+#include "duplicate_flight_dialog.h"
+
 #include "main.h"
 
 // Main List View
@@ -184,3 +186,12 @@ void main_listview_resize()
 
 	SetWindowPos(hWndMainListView, HWND_TOP, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, 0);
 }
+
+void main_list_view_duplicate_selected_item()
+{
+	if (show_duplicate_flight_dialog(hMainWnd, doc.result[main_list_view_selected])==IDOK)
+	{
+		load_main_listview();
+	}
+}
+

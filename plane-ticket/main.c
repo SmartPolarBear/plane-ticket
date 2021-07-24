@@ -261,6 +261,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			load_main_listview();
 			break;
 		}
+		case ID_SELECTED_DUPLICATE:
+		{
+			main_list_view_duplicate_selected_item();
+			break;
+		}
 		case ID_SELECTED_SETSTATUS:
 			if (show_flight_status_dlg(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
 			{
