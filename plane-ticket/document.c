@@ -43,6 +43,20 @@ static inline int flight_date_cmp(const void* a, const void* b)
 	return flight_date_comp(&fa->date, &fb->date);
 }
 
+static inline int flight_ticket_avail_cmp(const void* a, const void* b)
+{
+	flight_t* fa = *(flight_t**)a;
+	flight_t* fb = *(flight_t**)b;
+	return fa->remaining-fb->remaining;
+}
+
+static inline int flight_ticket_sold_cmp(const void* a, const void* b)
+{
+	flight_t* fa = *(flight_t**)a;
+	flight_t* fb = *(flight_t**)b;
+	return fa->sold - fb->sold;
+}
+
 static inline int document_item_apply_query(const document_t* doc, const flight_t* f)
 {
 	if (!f)return FALSE;
@@ -228,6 +242,14 @@ int document_apply_query(document_t* doc)
 		else if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_DATE)
 		{
 			qsort(doc->result, doc->result_count, sizeof(flight_t*), flight_date_cmp);
+		}
+		else if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_TICKET_AVAIL)
+		{
+			qsort(doc->result, doc->result_count, sizeof(flight_t*), flight_ticket_avail_cmp);
+		}
+		else if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_TICKET_SOLD)
+		{
+			qsort(doc->result, doc->result_count, sizeof(flight_t*), flight_ticket_sold_cmp);
 		}
 	}
 

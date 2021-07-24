@@ -122,7 +122,10 @@ static inline void do_query(HWND hDlg)
 		do_query_dest(hDlg);
 	}
 
-	doc.sort.is_sorted = Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_NAME)) == BST_CHECKED || Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_DATE)) == BST_CHECKED;
+	doc.sort.is_sorted = Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_NAME)) == BST_CHECKED ||
+		Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_DATE)) == BST_CHECKED ||
+		Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_AVAL)) == BST_CHECKED ||
+		Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_SOLD)) == BST_CHECKED;
 
 	if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_NAME)) == BST_CHECKED)
 	{
@@ -131,6 +134,14 @@ static inline void do_query(HWND hDlg)
 	else if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_DATE)) == BST_CHECKED)
 	{
 		doc.sort.sort_flags |= FLIGHT_QUERY_SORT_DATE;
+	}
+	else if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_AVAL)) == BST_CHECKED)
+	{
+		doc.sort.sort_flags |= FLIGHT_QUERY_SORT_TICKET_AVAIL;
+	}
+	else if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_SOLD)) == BST_CHECKED)
+	{
+		doc.sort.sort_flags |= FLIGHT_QUERY_SORT_TICKET_SOLD;
 	}
 
 

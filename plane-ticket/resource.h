@@ -63,8 +63,10 @@
 #define IDC_RADIO_SORT_DATE             1061
 #define IDC_RADIO_NO_SORT               1062
 #define IDC_DATETIMEPICKER_TIME_TO      1063
-#define IDC_DATETIMEPICKER2             1064
 #define IDC_DATETIMEPICKER_DATE_TO      1064
+#define IDC_RADIO_SORT_AVAL             1065
+#define IDC_RADIO5                      1066
+#define IDC_RADIO_SORT_SOLD             1066
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -95,7 +97,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32796
-#define _APS_NEXT_CONTROL_VALUE         1065
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
