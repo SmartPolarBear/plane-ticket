@@ -110,7 +110,7 @@ void create_main_listview(HWND hwndParent, int x, int y, int w, int h)
 	// Create the list-view window in report view with label editing enabled.
 	hWndMainListView = CreateWindow(WC_LISTVIEW,
 		L"",
-		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS| LVS_SINGLESEL,
+		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS | LVS_SINGLESEL,
 		x,
 		y,
 		w,
@@ -184,12 +184,17 @@ void main_listview_resize()
 	RECT rcClient;
 	GetClientRect(hMainWnd, &rcClient);
 
-	SetWindowPos(hWndMainListView, HWND_TOP, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, 0);
+	RECT rc_status_bar;
+	GetClientRect(hStatusBar, &rc_status_bar);
+
+	SetWindowPos(hWndMainListView, HWND_TOP, 0, 0,
+		rcClient.right - rcClient.left,
+		rcClient.bottom - rcClient.top - (rc_status_bar.bottom - rc_status_bar.top), 0);
 }
 
 void main_list_view_duplicate_selected_item()
 {
-	if (show_duplicate_flight_dialog(hMainWnd, doc.result[main_list_view_selected])==IDOK)
+	if (show_duplicate_flight_dialog(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
 	{
 		load_main_listview();
 	}

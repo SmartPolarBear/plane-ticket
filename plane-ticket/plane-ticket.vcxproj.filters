@@ -116,6 +116,9 @@
     <ClCompile Include="duplicate_flight_dialog.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="main_status_bar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="plane-ticket.rc">
