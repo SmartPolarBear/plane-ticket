@@ -20,12 +20,14 @@ extern HWND h_query_tool_window;
 extern document_t doc;
 
 void make_main_layout();
+void update_main_layout();
 
 void create_main_listview(HWND hwndParent, int x, int y, int w, int h);
+void main_listview_resize();
 void load_main_listview();
 void main_list_view_delete_selected_item();
 
-void create_right_panel(HWND hwndParent, int x, int y, int w, int h);
+void create_right_panel(HWND hwndParent);
 
 void show_add_flight_dialog();
 void show_about_dialog();

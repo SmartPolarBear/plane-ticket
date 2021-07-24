@@ -108,7 +108,7 @@ void create_main_listview(HWND hwndParent, int x, int y, int w, int h)
 	// Create the list-view window in report view with label editing enabled.
 	hWndMainListView = CreateWindow(WC_LISTVIEW,
 		L"",
-		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS,
+		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_EDITLABELS| LVS_SINGLESEL,
 		x,
 		y,
 		w,
@@ -175,4 +175,12 @@ void main_list_view_delete_selected_item()
 
 	main_list_view_selected = -1;
 
+}
+
+void main_listview_resize()
+{
+	RECT rcClient;
+	GetClientRect(hMainWnd, &rcClient);
+
+	SetWindowPos(hWndMainListView, HWND_TOP, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, 0);
 }

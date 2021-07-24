@@ -247,6 +247,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
+	case WM_SIZE:
+	{
+		update_main_layout();
+		break;
+	}
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;

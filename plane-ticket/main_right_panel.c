@@ -235,7 +235,7 @@ INT_PTR CALLBACK QueryToolWindowWndProc(HWND hDlg, UINT message, WPARAM wParam, 
 }
 
 
-void create_right_panel(HWND hwndParent, int x, int y, int w, int h)
+void create_right_panel(HWND hwndParent)
 {
 	INITCOMMONCONTROLSEX icex;
 
