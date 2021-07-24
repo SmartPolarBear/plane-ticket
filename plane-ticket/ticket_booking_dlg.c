@@ -34,7 +34,7 @@ static inline void load_class_combo_targeted(HWND hDlg)
 	{
 		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"First");
 	}
-	else if(target_flags & TFLAG_CLASS_BUSINESS)
+	else if (target_flags & TFLAG_CLASS_BUSINESS)
 	{
 		SendMessage(h_class_combo, CB_ADDSTRING, (WPARAM)0, (LPARAM)L"Business");
 	}
@@ -78,7 +78,7 @@ static inline void load_class_combo(HWND hDlg)
 static inline void load_seat_combo_targeted(HWND hDlg)
 {
 	HWND h_seat_combo = GetDlgItem(hDlg, IDC_COMBO_SEAT);
-	ComboBox_AddString(h_seat_combo,target_seat);
+	ComboBox_AddString(h_seat_combo, target_seat);
 	ComboBox_SetCurSel(h_seat_combo, 0);
 	ComboBox_Enable(h_seat_combo, FALSE);
 }
@@ -115,6 +115,7 @@ static inline void load_seat_combo(HWND hDlg)
 	GetWindowText(h_class_combo, buf, 2);
 
 	int rows = document_flight_get_rows(target_flight), row_start = 1;
+
 	switch (buf[0])
 	{
 	case 'F': // First
@@ -172,7 +173,7 @@ static inline int do_book_flight(HWND hDlg)
 		t.flags |= TFLAG_CLASS_BUSINESS;
 		break;
 	case 'E': // Economy
-		t.flags |= TFLAG_CLASS_BUSINESS;
+		t.flags |= TFLAG_CLASS_ECONOMY;
 		break;
 	}
 
@@ -183,7 +184,7 @@ static inline int do_book_flight(HWND hDlg)
 	CONTROL_TEXT_TO_BUF(IDC_EDIT_PHONE, phone_buf, 11);
 	t.owner_phone = wcstol(phone_buf, &end, 10);
 
-	CONTROL_TEXT_TO_BUF(phone_buf, t.notes, 256);
+	CONTROL_TEXT_TO_BUF(IDC_EDIT_NOTES, t.notes, 256);
 
 
 	if (IsDlgButtonChecked(hDlg, IDC_UNACCOMPANIED_CHILDREN))
@@ -196,14 +197,15 @@ static inline int do_book_flight(HWND hDlg)
 		t.flags |= TFLAG_MEDICAL_NEEDS;
 	}
 
-	if (IsDlgButtonChecked(hDlg, IDC_RADIO_FMUSLIM))
+
+	if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_FMUSLIM)) == BST_CHECKED)
 	{
 		t.flags |= TFLAG_FOOD_MUSLIM;
 	}
 
-	if (IsDlgButtonChecked(hDlg, IDC_RADIO_FMUSLIM))
+	if (Button_GetState(GetDlgItem(hDlg, IDC_RADIO_FVEGE)) == BST_CHECKED)
 	{
-		t.flags |= IDC_RADIO_FVEGE;
+		t.flags |= TFLAG_FOOD_VEGETARIAN;
 	}
 
 	t.id = (uint32_t)hashing(t.owner_id);

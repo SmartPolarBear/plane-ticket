@@ -202,5 +202,5 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 void show_ticket_dlg()
 {
 	DialogBox(hInst, MAKEINTRESOURCE(IDD_TICKET_DIALOG), hMainWnd, TicketWndProc);
-	load_document(&doc);
+	load_main_listview();
 }

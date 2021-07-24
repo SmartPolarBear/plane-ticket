@@ -9,6 +9,22 @@
 
 const char* main_db_name = "main_db";
 
+static wchar_t flight_db_name_buf[256] = { 0 };
+static inline wchar_t* flight_get_db_file_name(const flight_t* f)
+{
+	memset(flight_db_name_buf, 0, sizeof(flight_db_name_buf));
+	swprintf(flight_db_name_buf, ARRAY_SIZE(flight_db_name_buf), L"%ls-%lld-%lld-%lld-%lld-%lld-%lld",
+		f->id,
+		f->date.year,
+		f->date.month,
+		f->date.day,
+		f->date.hours,
+		f->date.minutes,
+		f->date.seconds);
+
+	return flight_db_name_buf;
+}
+
 static inline int document_item_apply_query(const document_t* doc, const flight_t* f)
 {
 	if (!f)return FALSE;
@@ -174,9 +190,11 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 
 	out_info->tickets = NULL;
 
-	if (_waccess(flight->id, 2) == -1)return ERROR_SUCCESS;
+	wchar_t* file_name = flight_get_db_file_name(flight);
 
-	FILE* flight_db = _wfopen(flight->id, L"rb");
+	if (_waccess(file_name, 2) == -1)return ERROR_SUCCESS;
+
+	FILE* flight_db = _wfopen(file_name, L"rb");
 	if (!flight_db)
 	{
 		return ERROR_OPENFILE;
@@ -210,7 +228,7 @@ int document_get_flight_info(flight_t* flight, flight_info_t* out_info)
 
 int documeent_flight_info_save(document_t* doc, flight_info_t* info)
 {
-	FILE* db = _wfopen(info->parent->id, L"wb");
+	FILE* db = _wfopen(flight_get_db_file_name(info->parent), L"wb");
 	if (!db)
 	{
 		return ERROR_RWFILE;
@@ -374,5 +392,6 @@ void destroy_document(document_t* doc)
 
 int document_flight_get_rows(flight_info_t* f)
 {
-	return (int)ceil((f->parent->remaining + f->parent->sold) / 6.0);
+	float result= (f->parent->remaining + f->parent->sold) / 6.0;
+	return (int)(result+0.5);
 }
