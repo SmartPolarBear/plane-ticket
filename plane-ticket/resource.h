@@ -19,6 +19,7 @@
 #define IDD_DIALOG_BOOKING              131
 #define IDD_DIALOG_FIND_SEAT            132
 #define IDD_DIALOG_TICKET_DETAILS       133
+#define IDD_DIALOG_QUERY_PANEL          134
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
@@ -44,7 +45,6 @@
 #define IDC_BUTTON_DETAILS              1034
 #define IDC_COND_COMBO                  1039
 #define IDC_RESULT_LIST                 1040
-#define IDC_DATETIMEPICKER1             1042
 #define IDC_DATE_PICKER                 1042
 #define IDC_CHECK_FIRST                 1043
 #define IDC_CHECK_BUSINESS              1044
@@ -52,6 +52,17 @@
 #define IDC_CHECK_ALLOW_CUSTOM_FOOD     1046
 #define IDC_TIME_PICKER                 1048
 #define IDC_LIST_MAIN                   1049
+#define IDC_CHECK_BY_DATE               1051
+#define IDC_BUTTON_CLEAR                1052
+#define IDC_BUTTON_QUERY                1053
+#define IDC_DATETIMEPICKER_DATE         1054
+#define IDC_DATETIMEPICKER_TIME         1055
+#define IDC_CHECK_BY_DEST               1057
+#define IDC_EDIT_DEST                   1058
+#define IDC_RADIO_SORT_NAME             1060
+#define IDC_RADIO2                      1061
+#define IDC_RADIO_SORT_DATE             1061
+#define IDC_RADIO_NO_SORT               1062
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -72,6 +83,7 @@
 #define IDM_FLIGHT_BOOK                 32792
 #define ID_FLIGHT_CLEANALL              32793
 #define ID_SELECTED_FINDSEATS           32794
+#define ID_VIEW_QUERY                   32795
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -79,9 +91,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        134
-#define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1051
+#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_COMMAND_VALUE         32796
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

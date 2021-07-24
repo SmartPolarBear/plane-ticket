@@ -2,69 +2,98 @@
 
 #include <CommCtrl.h>
 
+#include "resource.h"
+
+#include <windowsx.h>
+
 // Right Panel
-HWND hWndRightPanel;
+HWND h_query_tool_window;
 
-static inline void right_panel_add_buttons(int parent_x, int parent_y, int parent_w, int parent_h)
+static inline void do_query(HWND hDlg)
 {
-	const int WIDTH = parent_w - 2 * RIGHT_PANEL_PADDING;
-
-	int x = RIGHT_PANEL_PADDING, y = RIGHT_PANEL_PADDING + 24;
-
-	HWND hWndButtonAdd = CreateWindow(WC_BUTTON, L"New Flight",
-		WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-		x,
-		y,
-		WIDTH,
-		RIGHT_PANEL_BTN_HEIGHT,
-		hWndRightPanel, (HMENU)IDC_BUTTON_ADD_FLIGHT, hInst, 0);
+	load_main_listview();
 }
 
-BOOL CALLBACK refine_font_proc(HWND hWnd, LPARAM lParam)
+static inline void do_clear(HWND hDlg)
 {
-	HFONT hfDefault = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	SendMessage(hWnd, WM_SETFONT, (WPARAM)hfDefault, MAKELPARAM(TRUE, 0));
-	return TRUE;
+	Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_BY_DATE), FALSE);
+	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+
+	Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_BY_DEST), FALSE);
+	Edit_Enable(GetDlgItem(hDlg, IDC_EDIT_DEST), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DEST));
+
+	Button_SetCheck(GetDlgItem(hDlg, IDC_RADIO_NO_SORT), TRUE);
 }
 
-LRESULT CALLBACK RightPanelMsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR subClass, DWORD_PTR data)
+INT_PTR CALLBACK QueryToolWindowWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg) {
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+	{
+		Button_SetCheck(GetDlgItem(hDlg, IDC_RADIO_NO_SORT), TRUE);
+		return (INT_PTR)TRUE;
+	}
+	case WM_DESTROY:
+	{
+		break;
+	}
 	case WM_COMMAND:
-		switch (LOWORD(wParam)) {
-		case IDC_BUTTON_ADD_FLIGHT:
-			show_add_flight_dialog();
+		switch (LOWORD(wParam))
+		{
+		case IDC_CHECK_BY_DATE:
+			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+			break;
+
+		case IDC_CHECK_BY_DEST:
+			Edit_Enable(GetDlgItem(hDlg, IDC_EDIT_DEST), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DEST));
+			break;
+
+		case IDC_BUTTON_QUERY:
+			do_query(hDlg);
+			break;
+
+		case IDC_BUTTON_CLEAR:
+			do_clear(hDlg);
+			break;
+
+		default:
+			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+			{
+				EndDialog(hDlg, LOWORD(wParam));
+				return (INT_PTR)TRUE;
+			}
 			break;
 		}
 		break;
-	case WM_NCDESTROY:
-		RemoveWindowSubclass(hwnd, RightPanelMsgProc, 0);
-		break;
 	}
-	return DefSubclassProc(hwnd, msg, wParam, lParam);
+	return (INT_PTR)FALSE;
 }
+
 
 void create_right_panel(HWND hwndParent, int x, int y, int w, int h)
 {
-	hWndRightPanel = CreateWindow(WC_BUTTON, L"Flight Action",
-		WS_CHILD | WS_VISIBLE | WS_GROUP | BS_GROUPBOX,
-		x,
-		y,
-		w,
-		h,
-		hwndParent, NULL, hInst, 0);
+	INITCOMMONCONTROLSEX icex;
 
-	if (hWndRightPanel == NULL)
+	icex.dwSize = sizeof(icex);
+	icex.dwICC = ICC_DATE_CLASSES;
+
+	InitCommonControlsEx(&icex);
+
+	if (!IsWindow(h_query_tool_window))
 	{
-		MessageBox(hMainWnd, L"Cannot initialize UI.", L"Failure", MB_OK | MB_ICONERROR);
-		exit(1);
+		h_query_tool_window = CreateDialog(hInst,
+			MAKEINTRESOURCE(IDD_DIALOG_QUERY_PANEL),
+			hMainWnd,
+			(DLGPROC)QueryToolWindowWndProc);
+
+		ShowWindow(h_query_tool_window, SW_SHOW);
+
+		EnableMenuItem(GetSystemMenu(h_query_tool_window, FALSE), SC_CLOSE,
+			MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	}
-
-	right_panel_add_buttons(x, y, w, h);
-
-	EnumChildWindows(hWndRightPanel, refine_font_proc, 0);
-	refine_font_proc(hWndRightPanel, 0); // call manually for itself
-
-	SetWindowSubclass(hWndRightPanel, RightPanelMsgProc, 0, 0);
 }
 

@@ -11,10 +11,11 @@
 extern HWND hWndMainListView;
 extern INT64 main_list_view_selected;
 
-extern HWND hWndRightPanel;
 
 extern HWND hMainWnd;
 extern HINSTANCE hInst;
+
+extern HWND h_query_tool_window;
 
 extern document_t doc;
 
