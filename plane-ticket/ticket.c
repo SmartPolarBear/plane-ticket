@@ -179,6 +179,8 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			case NM_DBLCLK:
 				ticket_listview_selected = SendMessage(h_ticket_listview, LVM_GETNEXTITEM,
 					-1, LVNI_FOCUSED | LVNI_SELECTED);
+
+				ticket_details(hDlg);
 				break;
 			case NM_RCLICK:
 				ticket_listview_selected = SendMessage(h_ticket_listview, LVM_GETNEXTITEM,
