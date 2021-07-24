@@ -216,19 +216,20 @@ int document_apply_query(document_t* doc)
 		}
 	}
 
+	doc->result_count = total;
+
+
 	if (doc->sort.is_sorted)
 	{
 		if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_NAME)
 		{
-			qsort(doc->result, doc->header->flight_count, sizeof(flight_t*), flight_id_cmp);
+			qsort(doc->result, doc->result_count, sizeof(flight_t*), flight_id_cmp);
 		}
 		else if (doc->sort.sort_flags & FLIGHT_QUERY_SORT_DATE)
 		{
-			qsort(doc->result, doc->header->flight_count, sizeof(flight_t*), flight_date_cmp);
+			qsort(doc->result, doc->result_count, sizeof(flight_t*), flight_date_cmp);
 		}
 	}
-
-	doc->result_count = total;
 
 	return 0;
 }

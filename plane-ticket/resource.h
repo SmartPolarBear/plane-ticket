@@ -55,15 +55,16 @@
 #define IDC_CHECK_BY_DATE               1051
 #define IDC_BUTTON_CLEAR                1052
 #define IDC_BUTTON_QUERY                1053
-#define IDC_DATETIMEPICKER_DATE         1054
+#define IDC_DATETIMEPICKER_DATE_FROM    1054
 #define IDC_DATETIMEPICKER_TIME_FROM    1055
 #define IDC_CHECK_BY_DEST               1057
 #define IDC_EDIT_DEST                   1058
 #define IDC_RADIO_SORT_NAME             1060
 #define IDC_RADIO_SORT_DATE             1061
 #define IDC_RADIO_NO_SORT               1062
-#define IDC_DATETIMEPICKER1             1063
 #define IDC_DATETIMEPICKER_TIME_TO      1063
+#define IDC_DATETIMEPICKER2             1064
+#define IDC_DATETIMEPICKER_DATE_TO      1064
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -94,7 +95,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32796
-#define _APS_NEXT_CONTROL_VALUE         1064
+#define _APS_NEXT_CONTROL_VALUE         1065
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

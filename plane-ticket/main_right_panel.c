@@ -26,16 +26,23 @@ static inline void do_query_date(HWND hDlg)
 		goto free_from;
 	}
 
-	HWND h_date_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE),
+	HWND h_date_from_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_FROM),
+		h_date_to_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_TO),
 		h_time_from_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_FROM),
 		h_time_to_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_TO);
 
 	SYSTEMTIME date, time;
-	DateTime_GetSystemtime(h_date_picker, &date);
+	DateTime_GetSystemtime(h_date_from_picker, &date);
 
-	from->year = to->year = date.wYear;
-	from->month = to->month = date.wMonth;
-	from->day = to->day = date.wDay;
+	from->year = date.wYear;
+	from->month = date.wMonth;
+	from->day = date.wDay;
+
+	DateTime_GetSystemtime(h_date_to_picker, &date);
+
+	to->year = date.wYear;
+	to->month = date.wMonth;
+	to->day = date.wDay;
 
 	DateTime_GetSystemtime(h_time_from_picker, &time);
 	from->hours = time.wHour;
@@ -112,7 +119,7 @@ static inline void do_query(HWND hDlg)
 	}
 	if (IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DEST))
 	{
-		do_query_date(hDlg);
+		do_query_dest(hDlg);
 	}
 
 	doc.sort.is_sorted = Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_NAME)) == BST_CHECKED || Button_GetState(GetDlgItem(hDlg, IDC_RADIO_SORT_DATE)) == BST_CHECKED;
@@ -133,7 +140,8 @@ static inline void do_query(HWND hDlg)
 static inline void do_clear(HWND hDlg)
 {
 	Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK_BY_DATE), FALSE);
-	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_FROM), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_TO), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_FROM), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 	Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_TO), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 
@@ -142,6 +150,8 @@ static inline void do_clear(HWND hDlg)
 	Edit_Enable(GetDlgItem(hDlg, IDC_EDIT_DEST), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DEST));
 
 	Button_SetCheck(GetDlgItem(hDlg, IDC_RADIO_NO_SORT), TRUE);
+
+	Edit_SetText(GetDlgItem(hDlg, IDC_EDIT_DEST), L"");
 
 	if (doc.query.date_from)
 	{
@@ -182,7 +192,8 @@ INT_PTR CALLBACK QueryToolWindowWndProc(HWND hDlg, UINT message, WPARAM wParam, 
 		switch (LOWORD(wParam))
 		{
 		case IDC_CHECK_BY_DATE:
-			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_FROM), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
+			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE_TO), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_FROM), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 			Button_Enable(GetDlgItem(hDlg, IDC_DATETIMEPICKER_TIME_TO), IsDlgButtonChecked(hDlg, IDC_CHECK_BY_DATE));
 			break;
