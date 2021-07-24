@@ -8,6 +8,7 @@
 
 #include "ticket_find_dlg.h"
 #include "ticket_booking_dlg.h"
+#include "flight_status_dlg.h"
 
 #define MAX_LOADSTRING 100
 
@@ -234,6 +235,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hWnd);
 			break;
 		case ID_FILE_NEW:
+			break;
+		case ID_SELECTED_SETSTATUS:
+			if (show_flight_status_dlg(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
+			{
+				load_main_listview();
+			}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

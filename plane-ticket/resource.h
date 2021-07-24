@@ -20,6 +20,7 @@
 #define IDD_DIALOG_FIND_SEAT            132
 #define IDD_DIALOG_TICKET_DETAILS       133
 #define IDD_DIALOG_QUERY_PANEL          134
+#define IDD_DIALOG_SET_FLIGHT_STATUS    135
 #define IDC_EDIT_COMPANY                1001
 #define IDC_EDIT_ID                     1002
 #define IDC_EDIT_FROM                   1003
@@ -65,8 +66,11 @@
 #define IDC_DATETIMEPICKER_TIME_TO      1063
 #define IDC_DATETIMEPICKER_DATE_TO      1064
 #define IDC_RADIO_SORT_AVAL             1065
-#define IDC_RADIO5                      1066
 #define IDC_RADIO_SORT_SOLD             1066
+#define IDC_RADIO_NORMAL                1067
+#define IDC_RADIO_CANCEL                1068
+#define IDC_RADIO3                      1069
+#define IDC_RADIO_DELAYED               1069
 #define ID_LISTVIEW_BOOK                32771
 #define ID_LISTVIEW_REFOUND             32772
 #define ID_FILE_SAVE                    32773
@@ -88,6 +92,7 @@
 #define ID_FLIGHT_CLEANALL              32793
 #define ID_SELECTED_FINDSEATS           32794
 #define ID_VIEW_QUERY                   32795
+#define ID_SELECTED_SETSTATUS           32796
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -95,9 +100,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        135
-#define _APS_NEXT_COMMAND_VALUE         32796
-#define _APS_NEXT_CONTROL_VALUE         1066
+#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_COMMAND_VALUE         32797
+#define _APS_NEXT_CONTROL_VALUE         1070
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

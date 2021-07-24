@@ -155,6 +155,7 @@
     <ClInclude Include="add_plane_dlg.h" />
     <ClInclude Include="control_id.h" />
     <ClInclude Include="error.h" />
+    <ClInclude Include="flight_status_dlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="main.h" />
@@ -170,6 +171,7 @@
   <ItemGroup>
     <ClCompile Include="about_dlg.c" />
     <ClCompile Include="add_plane_dlg.c" />
+    <ClCompile Include="flight_status_dlg.c" />
     <ClCompile Include="helper.c" />
     <ClCompile Include="main.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>

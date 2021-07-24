@@ -83,6 +83,10 @@ static inline void main_listview_add(flight_t* f, int idx)
 	{
 		LvItem.pszText = L"Delay";
 	}
+	else
+	{
+		LvItem.pszText = L"Normal";
+	}
 	SendMessage(hWndMainListView, LVM_SETITEM, 0, (LPARAM)&LvItem);
 
 	memset(buf, 0, sizeof(buf));
