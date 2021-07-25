@@ -92,9 +92,6 @@
     <ClCompile Include="main_right_panel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main_dialogs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ticket.c">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -1,6 +1,9 @@
 #include "framework.h"
 #include "about_dlg.h"
 
+#include "main.h"
+#include "resource.h"
+
 // Message handler for about box.
 INT_PTR CALLBACK AboutDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -20,4 +23,10 @@ INT_PTR CALLBACK AboutDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
+
+DWORD show_about_dialog(HWND h_parent)
+{
+	return DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hMainWnd, AboutDialog);
 }

@@ -2,4 +2,4 @@
 #include "framework.h"
 
 
-INT_PTR CALLBACK AboutDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+DWORD show_about_dialog(HWND h_parent);

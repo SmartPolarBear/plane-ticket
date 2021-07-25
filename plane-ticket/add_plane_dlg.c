@@ -122,3 +122,8 @@ INT_PTR CALLBACK AddPlaneDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	}
 	return (INT_PTR)FALSE;
 }
+
+WPARAM show_add_plane_dlg(HWND h_parent)
+{
+	return DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDPLANEDLG), hMainWnd, AddPlaneDialog);
+}

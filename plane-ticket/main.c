@@ -6,6 +6,10 @@
 
 #include "document.h"
 
+#include "about_dlg.h"
+
+#include "add_plane_dlg.h"
+
 #include "ticket_find_dlg.h"
 #include "ticket_booking_dlg.h"
 #include "flight_status_dlg.h"
@@ -168,7 +172,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			show_ticket_dlg();
 			break;
 		case IDM_FLIGHT_ADD:
-			show_add_flight_dialog();
+			if (show_add_plane_dlg(hMainWnd)==IDOK)
+			{
+				load_main_listview();
+			}
 			break;
 		case IDM_FLIGHT_DELETE:
 			main_list_view_delete_selected_item();
@@ -229,7 +236,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		case IDM_ABOUT:
-			show_about_dialog();
+			show_about_dialog(hMainWnd);
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);

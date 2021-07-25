@@ -33,6 +33,3 @@ void create_right_panel(HWND hwndParent);
 
 void create_status_bar();
 void status_bar_resize();
-
-void show_add_flight_dialog();
-void show_about_dialog();
