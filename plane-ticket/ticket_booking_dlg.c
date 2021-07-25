@@ -26,7 +26,6 @@ buf[len] = 0; \
 static wchar_t* target_seat = NULL;
 static int target_flags = 0;
 
-
 static inline void load_class_combo_targeted(HWND hDlg)
 {
 	HWND h_class_combo = GetDlgItem(hDlg, IDC_CLASS_COMBO);

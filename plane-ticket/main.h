@@ -20,9 +20,6 @@ extern HWND h_query_tool_window;
 
 extern document_t doc;
 
-void make_main_layout();
-void update_main_layout();
-
 void create_main_listview(HWND hwndParent, int x, int y, int w, int h);
 void main_listview_resize();
 void load_main_listview();

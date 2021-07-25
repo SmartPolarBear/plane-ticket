@@ -202,7 +202,7 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	return (INT_PTR)FALSE;
 }
 
-void show_ticket_dlg()
+void show_ticket_dialog()
 {
 	DialogBox(hInst, MAKEINTRESOURCE(IDD_TICKET_DIALOG), hMainWnd, TicketWndProc);
 	load_main_listview();

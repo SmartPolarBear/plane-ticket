@@ -3,4 +3,4 @@
 
 INT_PTR CALLBACK AddPlaneDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-WPARAM show_add_plane_dlg(HWND h_parent);
+WPARAM show_add_plane_dialog(HWND h_parent);

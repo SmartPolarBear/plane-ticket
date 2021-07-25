@@ -73,7 +73,7 @@ INT_PTR CALLBACK FlightStatusDlgWndProc(HWND hDlg, UINT message, WPARAM wParam, 
 }
 
 
-WPARAM show_flight_status_dlg(HWND h_parent, flight_t* f)
+WPARAM show_flight_status_dialog(HWND h_parent, flight_t* f)
 {
 	the_flight = f;
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_SET_FLIGHT_STATUS), h_parent, FlightStatusDlgWndProc);

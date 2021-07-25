@@ -169,10 +169,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case IDM_FLIGHT_VIEW_TICKETS:
-			show_ticket_dlg();
+			show_ticket_dialog();
 			break;
 		case IDM_FLIGHT_ADD:
-			if (show_add_plane_dlg(hMainWnd)==IDOK)
+			if (show_add_plane_dialog(hMainWnd)==IDOK)
 			{
 				load_main_listview();
 			}
@@ -274,7 +274,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		case ID_SELECTED_SETSTATUS:
-			if (show_flight_status_dlg(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
+			if (show_flight_status_dialog(hMainWnd, doc.result[main_list_view_selected]) == IDOK)
 			{
 				load_main_listview();
 			}
@@ -331,7 +331,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (main_list_view_selected < 0)
 					break;
 
-				show_ticket_dlg();
+				show_ticket_dialog();
 
 				break;
 

@@ -25,6 +25,9 @@ void do_duplicate_flight(HWND hDlg)
 	copy->date.month = date.wMonth;
 	copy->date.day = date.wDay;
 
+	copy->remaining += copy->sold;
+	copy->sold = 0;
+
 	document_add_flight(&doc, copy);
 	free(copy);
 
