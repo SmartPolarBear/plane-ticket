@@ -6,6 +6,7 @@
 
 static flight_t* the_flight = NULL;
 
+
 void do_duplicate_flight(HWND hDlg)
 {
 	HWND h_date_picker = GetDlgItem(hDlg, IDC_DATETIMEPICKER_DATE);

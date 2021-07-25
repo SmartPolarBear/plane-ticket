@@ -194,6 +194,7 @@ INT_PTR CALLBACK TicketWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 
 	case WM_DESTROY:
+		document_destroy_flight_info(target_flight);
 		free(target_flight);
 		ticket_listview_selected = -1;
 		target_flight = NULL;

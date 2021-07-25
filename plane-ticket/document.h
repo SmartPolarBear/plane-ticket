@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+/// @brief The bits for flight_t's flags field
 enum
 {
 	FFLAG_DELETE = 0b1,
@@ -20,6 +21,7 @@ enum
 	FFLAG_ALLOW_CUSTOM_FOOD = 0b1000000
 };
 
+/// @brief flags for document's sort
 enum
 {
 	FLIGHT_QUERY_NO_SORT = 0b1,
@@ -30,6 +32,7 @@ enum
 
 };
 
+/// @brief flags for ticket
 enum
 {
 	TFLAG_DELETE = 0b1,
@@ -44,6 +47,7 @@ enum
 	TFLAG_FOOD_VEGETARIAN = 0b100000000
 };
 
+/// @brief bitwise definition for flight's seat bitmap
 enum
 {
 	SEAT_A = (1 << 0),
@@ -54,13 +58,19 @@ enum
 	SEAT_K = (1 << 5),
 };
 
+/// @brief date time field for flight
 typedef struct flight_date
 {
 	uint64_t year, month, day, hours, minutes, seconds;
 }flight_date_t;
 
+/// @brief Compare two flight_date_t
+/// @param f1 
+/// @param f2 
+/// @return less than 0 if f1<f2 and greater if f1>f2
 int flight_date_comp(const flight_date_t* f1, const flight_date_t* f2);
 
+/// @brief flight information to be saved in disk
 typedef struct flight
 {
 	wchar_t id[32];
@@ -80,6 +90,7 @@ typedef struct flight
 	uint64_t flags;
 }flight_t;
 
+/// @brief ticket information to save in the disk
 typedef struct ticket
 {
 	uint64_t id;
@@ -95,6 +106,7 @@ typedef struct ticket
 	uint64_t flags;
 }ticket_t;
 
+/// @brief file header for ticket's configuration file
 typedef struct flight_header
 {
 	uint64_t ticket_count;
@@ -122,7 +134,7 @@ typedef struct flight_info
 }flight_info_t;
 
 
-
+/// @brief header for the main database
 typedef struct document_header
 {
 	uint64_t flight_count;
@@ -152,27 +164,72 @@ typedef struct document
 	size_t result_count;
 }document_t;
 
-
+/// @brief load document from disk
+/// @param doc the document object
+/// @return 0 if succeeded, error code otherwise
 int load_document(document_t* doc);
+
+/// @brief save document to disk
+/// @param doc 
+/// @return 0 if succeeded, error code otherwise
 int save_document(document_t* doc);
 
+/// @brief apply the query settings in doc
+/// @param doc 
+/// @return 0 if succeeded, error code otherwise
 int document_apply_query(document_t* doc);
 
+/// @brief add new flight
+/// @param doc 
+/// @param flight 
+/// @return 0 if succeeded, error code otherwise
 int document_add_flight(document_t* doc, flight_t* flight);
+
+/// @brief remove a flight from the database
+/// @param flight 
 void document_remove_flight(flight_t* flight);
 
+/// @brief free all memory allocated for doc
+/// @param doc 
 void destroy_document(document_t* doc);
 
+/// @brief read the configuration file for ticket
+/// @param flight 
+/// @param out_info 
+/// @return 0 if succeeded, error code otherwise
 int document_get_flight_info(flight_t* flight, flight_info_t* out_info);
+
+/// @brief save the configruation file for ticket
+/// @param doc 
+/// @param out_info 
+/// @return 0 if succeeded, error code otherwise
 int documeent_flight_info_save(document_t* doc, flight_info_t* out_info);
 
+/// @brief apply the query settings in flight
+/// @param info 
+/// @return  0 if succeeded, error code otherwise
 int document_flight_apply_query(flight_info_t* info);
 
+/// @brief Compute how many rows are there in a flight
+/// @param f 
+/// @return number of rows
 int document_flight_get_rows(flight_info_t* f);
 
+/// @brief book a ticket
+/// @param info 
+/// @param ticket 
+/// @return  0 if succeeded, error code otherwise
 int  document_flight_book_ticket(flight_info_t* info, ticket_t* ticket);
+
+/// @brief refound a ticket
+/// @param info 
+/// @param ticket 
+/// @return  0 if succeeded, error code otherwise
 int document_flight_refound_ticket(flight_info_t* info, ticket_t* ticket);
 
+
+/// @brief free all memories allocated for flight_info_t structure
+/// @param info 
 void document_destroy_flight_info(flight_info_t* info);
 
 
